@@ -1,12 +1,17 @@
 // import { NavigatorScreenParams } from '@react-navigation/native';
 
+import {Item} from '../pages/Wallet/Fiats';
+
 export type MainStack = {
   Onboard: undefined;
   Login: undefined;
   Signup: undefined;
   Welcome: undefined;
   ForgotPassword: undefined;
-  FundWallet: undefined;
+  ResetPassword: undefined;
+  FundWallet: {
+    type: string;
+  };
   WithdrawFund: undefined;
   Dashboard: undefined;
   BankAndCards: undefined;
@@ -15,6 +20,8 @@ export type MainStack = {
   Profile: undefined;
   ChangePassword: undefined;
   CreatePin: undefined;
+  UpdatePin: undefined;
+  VerifyPin: undefined;
   AccountVerify: undefined;
   LevelTwo: undefined;
   MobileMoney: undefined;
@@ -22,6 +29,9 @@ export type MainStack = {
   EmailOtpVerification: undefined;
   CryptoAlerts: undefined;
   AddCryptoAlert: undefined;
+  WalletInfo: {
+    item: Item;
+  };
 };
 
 export type BottomTabList = {

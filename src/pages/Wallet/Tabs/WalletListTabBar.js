@@ -7,9 +7,9 @@ import {
 } from 'react-native-responsive-screen';
 import Text from '../../../Components/Text';
 
-export function ProfileTabBar({state, descriptors, navigation, position}) {
+export function WalletListTabBar({state, descriptors, navigation, position}) {
   const theme = useTheme();
-  const {secondary, muted} = theme.colors;
+  const {secondary} = theme.colors;
   return (
     <View
       style={{
@@ -69,9 +69,7 @@ export function ProfileTabBar({state, descriptors, navigation, position}) {
               borderRadius: 15,
               paddingVertical: heightPercentageToDP('2%'),
             }}>
-            <Text
-              variant={'regular'}
-              style={[{color: isFocused ? 'white' : muted}]}>
+            <Text variant={'regular'} style={[{color: 'white'}]}>
               {label}
             </Text>
           </TouchableOpacity>

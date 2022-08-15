@@ -18,58 +18,61 @@ export const UserAuthApi = createApi({
   endpoints: builder => ({
     login: builder.mutation({
       query: credentials => ({
-        url: 'user/login',
+        url: 'auth/login',
         method: 'POST',
         body: credentials,
       }),
     }),
     signup: builder.mutation({
       query: credentials => ({
-        url: 'user/register-free',
+        url: 'auth/register',
         method: 'POST',
         body: credentials,
       }),
     }),
-    changeEmail: builder.mutation({
+    checkEmail: builder.mutation({
       query: credentials => ({
-        url: '/change/email',
+        url: 'check/email',
         method: 'POST',
         body: credentials,
       }),
     }),
-    getUserInfo: builder.query({
-      query: email => ({
-        url: `user/profile?email=${email}`,
-      }),
-    }),
-    changePassword: builder.mutation({
+    confirmEmail: builder.mutation({
       query: credentials => ({
-        url: '/change/password',
+        url: 'confirm/email',
         method: 'POST',
         body: credentials,
       }),
     }),
-    updateInfo: builder.mutation({
+    verifyEmail: builder.mutation({
       query: credentials => ({
-        url: '/update/profile/info',
+        url: 'verify/email',
         method: 'POST',
         body: credentials,
       }),
     }),
-    updateFavChoice: builder.mutation({
+    confirmMobile: builder.mutation({
       query: credentials => ({
-        url: '/update/profile/fav/choice',
+        url: 'confirm/mobile',
         method: 'POST',
         body: credentials,
       }),
     }),
-    updateProfilePics: builder.mutation({
+    verifyMobile: builder.mutation({
       query: credentials => ({
-        url: `/user/profilePhoto?email=${credentials.email}`,
+        url: 'verify/mobile',
         method: 'POST',
-        body: credentials.formData,
+        body: credentials,
       }),
     }),
+    checkUsername: builder.mutation({
+      query: credentials => ({
+        url: 'check/username',
+        method: 'POST',
+        body: credentials,
+      }),
+    }),
+
     forgotPassword: builder.mutation({
       query: credentials => ({
         url: '/password/email',
@@ -79,7 +82,7 @@ export const UserAuthApi = createApi({
     }),
     resetPassword: builder.mutation({
       query: credentials => ({
-        url: '/reset/password',
+        url: 'auth/reset/password',
         method: 'POST',
         body: credentials,
       }),
@@ -108,12 +111,12 @@ export const {
   useSignupMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
-  useChangeEmailMutation,
-  useChangePasswordMutation,
-  useUpdateInfoMutation,
-  useUpdateProfilePicsMutation,
   useSocialAuthMutation,
-  useUpdateFavChoiceMutation,
-  useGetUserInfoQuery,
   useUpdatePushTokenMutation,
+  useCheckUsernameMutation,
+  useCheckEmailMutation,
+  useConfirmEmailMutation,
+  useVerifyEmailMutation,
+  useConfirmMobileMutation,
+  useVerifyMobileMutation,
 } = UserAuthApi;

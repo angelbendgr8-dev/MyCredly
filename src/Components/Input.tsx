@@ -8,7 +8,7 @@ import {
 import React from 'react';
 
 import {Theme} from '../theme';
-import {StyleSheet, TextInput, View} from 'react-native';
+import {KeyboardTypeOptions, StyleSheet, TextInput, View} from 'react-native';
 import {heightPercentageToDP} from 'react-native-responsive-screen';
 const Box = createBox();
 
@@ -27,6 +27,9 @@ type Props = RestyleProps & {
   rightBtn?: Function;
   leftIcon?: Function;
   customStyles: {};
+  keyboard: KeyboardTypeOptions;
+  hasError: boolean;
+  max?:number;
 };
 
 const Input = ({
@@ -40,11 +43,14 @@ const Input = ({
   rightBtn,
   leftIcon,
   customStyles,
+  hasError,
+  keyboard,
+  max,
 }: Props) => {
   const [holder, setHolder] = React.useState(placeholder);
   const [isFocus, setIsFocus] = React.useState(false);
   const theme = useTheme();
-  const {foreground} = theme.colors;
+  const {foreground, muted} = theme.colors;
 
   return (
     <Box
@@ -54,8 +60,8 @@ const Input = ({
       justifyContent={'space-between'}
       alignItems={'center'}
       paddingHorizontal={'mx3'}
-      borderColor="success"
-      borderWidth={isFocus ? 1 : 0}
+      borderColor={isFocus ? 'success' : hasError ? 'danger' : 'transparent'}
+      borderWidth={isFocus || hasError ? 0.5 : 0}
       margin={'my1'}
       height={heightPercentageToDP('7%')}
       style={customStyles}
@@ -66,6 +72,7 @@ const Input = ({
         placeholder={holder}
         placeholderTextColor={foreground}
         onChangeText={onChange}
+        maxLength={max}
         onFocus={() => {
           setIsFocus(true);
           setHolder('');
@@ -80,13 +87,14 @@ const Input = ({
           styles.inputStyle,
           {
             flex: 2,
-            color: foreground,
+            color: !disabled ? muted : foreground,
           },
           // props.style,
         ]}
         // multiline={props.line ? true : false}
         textContentType={type}
         secureTextEntry={secure}
+        keyboardType={keyboard}
         editable={disabled}
         underlineColorAndroid="transparent"
       />
@@ -105,7 +113,7 @@ const styles = StyleSheet.create({
   inputStyle: {
     borderBottomWidth: 0,
 
-    fontFamily: 'Roboto-Medium',
+    fontFamily: 'Roboto-regular',
     // backgroundColor:'green',
   },
 });

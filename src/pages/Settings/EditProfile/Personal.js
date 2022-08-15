@@ -8,6 +8,7 @@ import Input from '../../../Components/Input';
 import Box from '../../../Components/Box';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Text from '../../../Components/Text';
+import {useAuth} from '../../../state/hooks/userAuth';
 
 export const ProfileImagge = ({image}) => {
   return (
@@ -24,6 +25,7 @@ export const ProfileImagge = ({image}) => {
 };
 
 const Personal = () => {
+  const {user} = useAuth();
   return (
     <Container>
       <ScrollView>
@@ -36,36 +38,42 @@ const Personal = () => {
           paddingVertical={'my4'}
           paddingHorizontal={'mx3'}
           backgroundColor={'secondary'}>
-          <Box marginBottom={'m'}>
+          <Box marginBottom={'my3'}>
             <ProfileImagge />
-            <Text variant={'medium'}>John Doe</Text>
+            <Text variant={'medium'} marginTop={'my2'}>
+              {user.first_name} {user.last_name}
+            </Text>
           </Box>
 
           <Input
             label={'Username'}
-            value={''}
+            value={user.username}
+            disabled={false}
             type={'nickname'}
             placeholder={'Username'}
             onChange={input => {}}
           />
           <Input
             label={'Email'}
-            value={''}
+            value={user.email}
+            disabled={false}
             type={'emailAddress'}
             placeholder={'Email'}
             onChange={input => {}}
           />
           <Input
             label={'Email'}
-            value={''}
-            type={'emailAddress'}
+            value={user.country}
+            type={'none'}
+            disabled={false}
             placeholder={'Country'}
             onChange={input => {}}
           />
 
           <Input
             placeholder={'Phone Number'}
-            value={''}
+            disabled={false}
+            value={`+${user.code}${user.mobile_number}`}
             type={'none'}
             onChange={input => {}}
           />

@@ -36,6 +36,7 @@ type Props = RestyleProps & {
   labelStyle: {};
   isloading?: boolean;
   childColor?: string;
+  disabled?: boolean;
 };
 
 const Button = ({
@@ -44,12 +45,13 @@ const Button = ({
   labelStyle,
   childColor,
   isloading = false,
+  disabled = false,
   ...rest
 }: Props) => {
   const props = useRestyle(restyleFunctions, rest);
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity disabled={disabled} onPress={onPress}>
       <Box
         flexDirection="row"
         justifyContent="center"

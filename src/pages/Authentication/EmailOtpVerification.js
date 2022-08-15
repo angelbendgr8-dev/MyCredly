@@ -13,18 +13,102 @@ import {
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
 import Button from '../../Components/Button';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import Links from '../../Components/Links';
-import { RFValue } from 'react-native-responsive-fontsize';
+import {RFValue} from 'react-native-responsive-fontsize';
+import {useEffectOnce} from 'usehooks-ts';
+import {
+  useConfirmEmailMutation,
+  useSignupMutation,
+  useVerifyEmailMutation,
+} from '../../state/services/userAuth';
+import {performAsyncCalls} from '../../helpers/constants';
+import {useToast} from 'react-native-toast-notifications';
+import {useTimeout} from 'usehooks-ts';
+import {useCountdown} from 'usehooks-ts';
+import _ from 'lodash';
 
 const Box = createBox();
 const EmailOtpVerification = () => {
-  
-
+  const {params} = useRoute();
+  const {details, type} = params;
   const {navigate} = useNavigation();
   const theme = useTheme();
-  const {background, success} = theme.colors;
-  const {my2, mx2,mx3, s} = theme.spacing;
+  const {background, success, foreground} = theme.colors;
+  const {my2, mx2, mx3, s} = theme.spacing;
+  const [confirmEmail, {isLoading: confirmLoading}] = useConfirmEmailMutation();
+  const [verifyEmail, {isLoading: verifyLoading}] = useVerifyEmailMutation();
+
+  const [intervalValue, setIntervalValue] = useState(1000);
+  const [visible, setVisible] = useState(false);
+  const [code, setCode] = useState('');
+  const [count, {startCountdown, resetCountdown}] = useCountdown({
+    countStart: 600,
+
+    intervalMs: intervalValue,
+  });
+  const resend = () => setVisible(true);
+  useTimeout(resend, 600000);
+  const toast = useToast();
+  useEffectOnce(() => {
+    sendOtp();
+  });
+
+  const sendOtp = async () => {
+    console.log(details.email);
+    const response = await performAsyncCalls(
+      {email: details.email},
+      confirmEmail,
+    );
+    if (response.success === false) {
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    } else {
+      setVisible(false);
+      resetCountdown();
+      startCountdown();
+      console.log(response);
+      toast.show(response.message, {
+        type: 'success',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    }
+  };
+  const verifyOtp = async () => {
+    const response = await performAsyncCalls(
+      {email: details.email, code},
+      verifyEmail,
+    );
+    if (response.success === false) {
+      console.log('here');
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    } else {
+      if (type === 'register') {
+        navigate('PhoneOtpVerification', {details});
+      } else {
+        navigate('ResetPassword', {details});
+      }
+    }
+  };
+  const formatTime = time => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time - minutes * 60;
+    return `${minutes ? `${minutes} minute${minutes > 1 ? 's' : ''}` : ''} ${
+      seconds ? `${seconds} second${seconds > 1 ? 's' : ''}` : ''
+    }`;
+  };
+
   return (
     <Container style={{justifyContent: 'space-between'}}>
       <Header text={'Verify Email'} />
@@ -47,20 +131,21 @@ const EmailOtpVerification = () => {
             marginHorizontal={'s'}
             marginVertical={'my2'}
             maxWidth={widthPercentageToDP('65%')}>
-            <Text variant={'bold'} fontSize={RFValue(28)} color="success">
+            <Text variant={'bold'} fontSize={RFValue(24)} color="success">
               Email Verification
             </Text>
             <Text
               textAlign={'center'}
               marginVertical={'my1'}
               variant={'medium'}
-              color={'faint'}>
-              An authentication code has been sent to angl***@gmail.com
+              color={'muted'}>
+              An authentication code has been sent to{' '}
+              {details.email.substr(0, 5)}***{details.email.slice(-10)}
             </Text>
           </Box>
 
           <OtpInputs
-            handleChange={code => console.log(code)}
+            handleChange={code => setCode(code)}
             numberOfInputs={5}
             style={styles.inputContainer}
             inputStyles={[
@@ -73,12 +158,28 @@ const EmailOtpVerification = () => {
             <Text variant={'medium'} marginRight={'s'}>
               I didn't receive code.
             </Text>
-            <Links onPress={() => navigate('Signup')} text={'Resend Code'} />
+            {visible ? (
+              <Links
+                onPress={() => {
+                  sendOtp();
+                  setVisible(false);
+                  resetCountdown();
+                  startCountdown();
+                }}
+                text={'Resend Code'}
+              />
+            ) : (
+              <Text variant="regular" color="muted">
+                {formatTime(count)}
+              </Text>
+            )}
           </Box>
           <Button
             label="Verify Now"
-            onPress={() => navigate('PhoneOtpVerification')}
+            onPress={() => verifyOtp()}
+            isloading={verifyLoading}
             backgroundColor={'success'}
+            childColor={foreground}
             width={widthPercentageToDP('80%')}
             labelStyle={{color: 'white'}}
             paddingVertical={'my2'}

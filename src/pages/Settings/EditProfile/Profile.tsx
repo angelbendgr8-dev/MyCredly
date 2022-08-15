@@ -9,7 +9,7 @@ const Profile = () => {
   return (
     <Container style={{paddingTop: 0}}>
       <Header leftIcon={true} text={''} />
-      <Text variant={'bold'} marginLeft="m" marginTop={'s'}>
+      <Text variant={'bold'} color="muted" marginLeft="m" marginTop={'s'}>
         Edit Profile
       </Text>
       <ProfileTab />

@@ -6,9 +6,9 @@ import Text from '../Components/Text';
 
 const BuyAndSell = () => {
   return (
-    <Container paddingTop="my7">
+    <Container paddingTop="my4">
       {/* <Header leftIcon={'true'} text={''} /> */}
-      <Text variant={'bold'} marginLeft="m" marginTop={'l'}>
+      <Text variant={'bold'} marginLeft="m" marginTop={'m'}>
         P2P
       </Text>
       <PeerToPeer />

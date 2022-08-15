@@ -1,9 +1,9 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
-import Container from '../../Components/Container';
-import Header from '../../Components/Header';
+import Container from '../Components/Container';
+import Header from '../Components/Header';
 import {createBox, useTheme} from '@shopify/restyle';
-import Text from '../../Components/Text';
+import Text from '../Components/Text';
 import OtpInputs from 'react-native-otp-inputs';
 
 import Icon from 'react-native-vector-icons/Entypo';
@@ -12,32 +12,31 @@ import {
   heightPercentageToDP,
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import Button from '../../Components/Button';
+import Button from '../Components/Button';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import Links from '../../Components/Links';
+import Links from '../Components/Links';
 import {RFValue} from 'react-native-responsive-fontsize';
-import {performAsyncCalls} from '../../helpers/constants';
+import {performAsyncCalls} from '../helpers/constants';
 import {
   useConfirmMobileMutation,
   useSignupMutation,
   useVerifyMobileMutation,
-} from '../../state/services/userAuth';
+} from '../state/services/userAuth';
 import {useCountdown, useEffectOnce, useTimeout} from 'usehooks-ts';
 import {useToast} from 'react-native-toast-notifications';
-import {setCredentials, updateCredentials} from '../../state/reducers/userAuth';
+import {setCredentials, updateCredentials} from '../state/reducers/userAuth';
 import {useDispatch} from 'react-redux';
-import {useCreatePinMutation} from '../../state/services/SettingsService';
+import {useCreatePinMutation} from '../state/services/SettingsService';
 import _ from 'lodash';
 
 const Box = createBox();
-const PhoneOtpVerification = () => {
-  const [secure, setSecure] = React.useState(true);
+const VerifyPin = () => {
   const {params} = useRoute();
-  const {details, type} = params;
+  const {details, action} = params;
   const dispatch = useDispatch();
   const {navigate} = useNavigation();
   const theme = useTheme();
-  const {background, success, foreground} = theme.colors;
+  const {background, success, foregorund} = theme.colors;
   const [confirmMobile, {isLoading: confirmLoading}] =
     useConfirmMobileMutation();
   const [verifyMobile, {isLoading: verifyLoading}] = useVerifyMobileMutation();
@@ -98,7 +97,7 @@ const PhoneOtpVerification = () => {
         animationType: 'zoom-in',
       });
     } else {
-      saveUser();
+      onSubmit(details);
     }
   };
   const formatTime = time => {
@@ -108,30 +107,10 @@ const PhoneOtpVerification = () => {
       seconds ? `${seconds} second${seconds > 1 ? 's' : ''}` : ''
     }`;
   };
-  const saveUser = async () => {
-    const response = await performAsyncCalls(details, signup);
-    console.log(response);
-    if (response.success === false) {
-      toast.show(response.message, {
-        type: 'danger',
-        placement: 'top',
-        duration: 4000,
-        animationType: 'zoom-in',
-      });
-    } else {
-      dispatch(
-        setCredentials({
-          user: response.data.user,
-          token: response.data.token,
-        }),
-      );
-      navigate('Dashboard');
-    }
-  };
 
   const onSubmit = async credentials => {
     console.log(credentials);
-    const response = await performAsyncCalls(credentials, createPin);
+    const response = await performAsyncCalls(credentials, action);
     console.log(response);
     if (response && response.success) {
       toast.show(response.message, {
@@ -153,7 +132,7 @@ const PhoneOtpVerification = () => {
   };
   return (
     <Container style={{justifyContent: 'space-between'}}>
-      <Header text={'Sign In'} />
+      <Header text={'Verify Opt'} />
       <Container
         style={{
           justifyContent: 'flex-start',
@@ -173,7 +152,7 @@ const PhoneOtpVerification = () => {
             marginHorizontal={'s'}
             marginVertical={'my2'}
             maxWidth={widthPercentageToDP('65%')}>
-            <Text variant={'bold'} fontSize={RFValue(24)} color="success">
+            <Text variant={'bold'} fontSize={RFValue(28)} color="success">
               Phone Verification
             </Text>
             <Text
@@ -182,7 +161,7 @@ const PhoneOtpVerification = () => {
               variant={'medium'}
               color={'muted'}>
               An authentication code has been sent to{' '}
-              {`(+${details.code}) ${details.mobile_number.slice(-6)}`}
+              {`(+${details.code}) ${details.mobile_number}`}
             </Text>
           </Box>
 
@@ -219,9 +198,9 @@ const PhoneOtpVerification = () => {
           <Button
             label="Verify Now"
             onPress={() => verifyOtp()}
-            childColor={foreground}
             isloading={verifyLoading || signupLoading || pinLoading}
             backgroundColor={'success'}
+            childColor={foreground}
             width={widthPercentageToDP('80%')}
             labelStyle={{color: 'white'}}
             paddingVertical={'my2'}
@@ -235,7 +214,7 @@ const PhoneOtpVerification = () => {
   );
 };
 
-export default PhoneOtpVerification;
+export default VerifyPin;
 
 const styles = StyleSheet.create({
   inputContainer: {

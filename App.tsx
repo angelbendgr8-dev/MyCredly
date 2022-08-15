@@ -22,6 +22,11 @@ import {ThemeProvider} from '@shopify/restyle';
 import theme from './src/theme';
 import StackNavigation from './src/Navigation/StackNavigation';
 import AppContextProvider from './src/state/AppContext';
+import {ToastProvider} from 'react-native-toast-notifications';
+
+import Icon from 'react-native-vector-icons/Feather';
+import Warn from 'react-native-vector-icons/Ionicons';
+import Error from 'react-native-vector-icons/MaterialIcons';
 
 import {MenuProvider} from 'react-native-popup-menu';
 
@@ -43,9 +48,23 @@ const App = () => {
               barStyle={isDarkMode ? 'light-content' : 'dark-content'}
             />
             <AppContextProvider>
-              <MenuProvider>
-                <StackNavigation />
-              </MenuProvider>
+              <ToastProvider
+                placement="top"
+                duration={5000}
+                animationType="zoom-in"
+                animationDuration={250}
+                successColor="green"
+                dangerColor="red"
+                warningColor="orange"
+                normalColor="gray"
+                // icon={<Icon />}
+                successIcon={<Icon name="check-circle" color="white" />}
+                dangerIcon={<Error name="dangerous" color="white" />}
+                warningIcon={<Warn name="warning-sharp" color="white" />}>
+                <MenuProvider>
+                  <StackNavigation />
+                </MenuProvider>
+              </ToastProvider>
             </AppContextProvider>
           </ThemeProvider>
         </NavigationContainer>

@@ -7,9 +7,9 @@ const data = ['BTC', 'ETH', 'DOGE', 'LTE', 'CELO', 'USDT', 'CUSD'];
 
 const Swap = () => {
   return (
-    <Container style={{paddingTop: 0}}>
+    <Container paddingTop={'my4'}>
       {/* <Header leftIcon={'true'} text={''} /> */}
-      <Text variant={'bold'} marginLeft="m" marginTop={'s'}>
+      <Text variant={'bold'} marginLeft="m" marginTop={'m'}>
         Swap
       </Text>
       <SwapTab />

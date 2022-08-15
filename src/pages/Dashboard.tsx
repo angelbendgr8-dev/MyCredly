@@ -6,7 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import Button from '../Components/Button';
 import {
@@ -22,6 +22,14 @@ import Text from '../Components/Text';
 import {Dropdown} from 'react-native-element-dropdown';
 import moment from 'moment';
 import {ghs, ngn, usa} from '../assets';
+import {useAuth} from '../state/hooks/userAuth';
+import {useGetWalletsQuery} from '../state/services/wallet.services';
+import {useDispatch} from 'react-redux';
+import {setWallets} from '../state/reducers/wallet.reducer';
+import _ from 'lodash';
+import {useWallet} from '../state/hooks/wallet.hooks';
+import {assetUrl, currencyFormat} from '../helpers/constants';
+import {AppContext} from '../state/AppContext';
 const Box = createBox();
 const data = [
   {label: 'NGN', value: 'NGN', icon: ngn, code: '₦'},
@@ -46,6 +54,7 @@ function greeting() {
   return 'Good morning';
 }
 const HeaderBoard = () => {
+  const {user} = useAuth();
   return (
     <Box flexDirection={'column'} paddingHorizontal="mx3">
       <Box
@@ -88,7 +97,7 @@ const HeaderBoard = () => {
           variant={'medium'}
           color={'background'}
           textTransform={'capitalize'}>
-            Awoniyi Klama
+          {user.first_name} {user.last_name}
         </Text>
       </Box>
     </Box>
@@ -99,17 +108,32 @@ const HeaderCard = () => {
   const {navigate} = useNavigation();
   const [value, setValue] = useState('NGN');
   const theme = useTheme();
+  const {fiats} = useWallet();
   const {background, faint} = theme.colors;
-  const [icon, setIcon] = useState(ngn);
+  const [balance, setBalance] = useState(0.0);
+  const [icon, setIcon] = useState('');
   const [code, setCode] = useState('₦');
+  // console.log(`${assetUrl()}${fiats[0].wType.icon}`);
+  const {setCwallet} = useContext(AppContext);
   const renderItem = (item: any) => {
+    console.log(item.wType.icon);
     return (
       <View style={styles.item}>
-        <Image source={item.icon} style={styles.icon} />
-        <Text variant={'medium'}>{item.label}</Text>
+        <Image
+          source={{uri: `${assetUrl()}${item.wType.icon}`}}
+          style={styles.icon}
+        />
+        <Text variant={'medium'}>{item.name}</Text>
       </View>
     );
   };
+  useEffect(() => {
+    if (fiats) {
+      setIcon(fiats[0].wType.icon);
+      setCode(fiats[0].wType.sign);
+      setBalance(fiats[0].balance);
+    }
+  }, [fiats]);
 
   return (
     <Box
@@ -147,7 +171,7 @@ const HeaderCard = () => {
             Wallet Balance
           </Text>
           <Text variant={'bold'} color={'background'} fontSize={16}>
-            {code} 0.00
+            {currencyFormat(balance, code)}
           </Text>
         </Box>
         <Box>
@@ -160,19 +184,25 @@ const HeaderCard = () => {
             containerStyle={[
               {backgroundColor: faint, borderWidth: 0, opacity: 0.8},
             ]}
-            data={data}
+            data={fiats}
             maxHeight={300}
             width={200}
-            labelField="label"
-            valueField="value"
+            labelField="name"
+            valueField="name"
             activeColor={background}
             value={value}
             onChange={item => {
-              setValue(item.value);
-              setIcon(item.icon);
-              setCode(item.code);
+              setValue(item.name);
+              setIcon(item.wType.icon);
+              setCode(item.wType.sign);
+              setBalance(item.balance);
             }}
-            renderLeftIcon={() => <Image style={styles.icon} source={icon} />}
+            renderLeftIcon={() => (
+              <Image
+                style={styles.icon}
+                source={{uri: `${assetUrl()}${icon}`}}
+              />
+            )}
             renderItem={renderItem}
           />
         </Box>
@@ -180,7 +210,10 @@ const HeaderCard = () => {
       <Box flexDirection={'row'} justifyContent="space-evenly">
         <Button
           label="Fund"
-          onPress={() => navigate('FundWallet')}
+          onPress={() => {
+            setCwallet(value);
+            navigate('FundWallet');
+          }}
           backgroundColor={'faint'}
           width={widthPercentageToDP('40%')}
           labelStyle={{color: 'white', fontSize: 16, zIndex: 10}}
@@ -212,11 +245,15 @@ const HeaderCard = () => {
 
 const Feature: React.FC<FeatureProps> = ({text, icon}) => {
   return (
-    <Box marginHorizontal={'mx1'}>
+    <Box marginHorizontal={'mx1'} alignItems="center">
       <Box
         backgroundColor={'secondary'}
         borderRadius={10}
-        padding={'mx4'}
+        // height={50}
+        // width={widthPercentageToDP('20%')}
+        padding="m"
+        alignItems="center"
+        justifyContent={'center'}
         elevation={5}>
         {icon()}
       </Box>
@@ -232,6 +269,18 @@ const Feature: React.FC<FeatureProps> = ({text, icon}) => {
 const Dashboard = () => {
   const {navigate} = useNavigation();
   const theme = useTheme();
+  const {data: wallets, isLoading} = useGetWalletsQuery();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!_.isEmpty(wallets)) {
+      // console.log(wallets);
+      dispatch(setWallets({wallets: wallets.data}));
+    }
+
+    return () => {};
+  }, [wallets, dispatch]);
+
   const {success1, progress, warning, pink} = theme.colors;
 
   return (
@@ -361,8 +410,8 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   iconStyle: {
-    width: 20,
-    height: 20,
+    width: 10,
+    height: 10,
   },
   inputSearchStyle: {
     height: 40,

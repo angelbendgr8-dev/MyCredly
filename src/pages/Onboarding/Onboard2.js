@@ -24,14 +24,13 @@ const Onboard2 = () => {
         <LinearGradient
           colors={['#A7E05F', '#12AB97']}
           style={styles.linearGradient}>
-          <Text variant={'bold'}>Buy & Sell Bitcoin</Text>
+          <Text variant={'bold'} fontSize={20}>Manage your Portfolio</Text>
           <Text variant={'regular'} style={styles.descriptionStyle}>
-            Reference site about Lorem Ipsum, giving information origins as well
-            as a random{' '}
+            Keep track of your digital currency in one place
           </Text>
           <Button
             label="Get Started"
-            onPress={() => navigate('Signup')}
+            onPress={() => navigate('Login')}
             backgroundColor={'foreground'}
             width={widthPercentageToDP('80%')}
             labelStyle={{color: 'black'}}

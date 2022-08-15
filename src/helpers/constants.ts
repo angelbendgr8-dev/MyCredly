@@ -1,27 +1,48 @@
 import moment from 'moment';
 
 import Config from 'react-native-config';
+import {ReqResponse} from '../interface/error.interface';
 
 export const getUrl = () => {
-  // return 'http://192.168.79.159:3000/api/';
+  if (__DEV__) {
+    return 'https://3ad0-102-89-33-238.eu.ngrok.io/api';
+  } else {
+    return 'https://mycredly.herokuapp.com/api/';
+  }
 };
 
-export function currencyFormat(num) {
+export const assetUrl = () => {
+  if (__DEV__) {
+    return 'https://3ad0-102-89-33-238.eu.ngrok.io/storage/';
+  } else {
+    return 'https://mycredly.herokuapp.com/storage/';
+  }
+};
+
+export function currencyFormat(num, code) {
   return (
-    '\u20A6' +
+    `${code} ` +
     Number(num)
       .toFixed(0)
       .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
   );
 }
-export const performAsyncCalls = async (data, action) => {
+export const performAsyncCalls = async (
+  data = {},
+  login: Function,
+): Promise<ReqResponse> => {
+  let response: ReqResponse;
   try {
-    const response = await action(data).unwrap();
+    response = await login(data).unwrap();
+  } catch (error: any) {
+    response = error.data || {
+      data: {},
+      message: error.error,
+      status: 'failed',
+    };
     return response;
-  } catch (error) {
-    console.log(error);
-    return error.data;
   }
+  return response;
 };
 
 export function abbrNum(number, decPlaces) {
@@ -62,4 +83,3 @@ export function abbrNum(number, decPlaces) {
   // console.log('abbrNum(' + orig + ', ' + dec + ') = ' + number);
   return number;
 }
-

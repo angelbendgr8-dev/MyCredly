@@ -5,7 +5,7 @@ import Text from './Text';
 const Links = ({text, onPress}) => {
   return (
     <TouchableOpacity onPress={onPress}>
-      <Text variant={'medium'} fontSize={18} color={'success'}>
+      <Text variant={'medium'} fontSize={14} color={'success'}>
         {text}
       </Text>
     </TouchableOpacity>

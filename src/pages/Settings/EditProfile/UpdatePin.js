@@ -18,13 +18,17 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {performAsyncCalls} from '../../../helpers/constants';
 import {useToast} from 'react-native-toast-notifications';
-import {useCreatePinMutation} from '../../../state/services/SettingsService';
+import {useUpdatePinMutation} from '../../../state/services/SettingsService';
 import {useDispatch} from 'react-redux';
 import {updateCredentials} from '../../../state/reducers/userAuth';
 import {useAuth} from '../../../state/hooks/userAuth';
 
 const schema = yup
   .object({
+    old_pin: yup
+      .string()
+      .required('Pin is required')
+      .matches(/^(?=.{6})/, 'Must Contain 6 Characters'),
     pin: yup
       .string()
       .required('Pin is required')
@@ -35,44 +39,35 @@ const schema = yup
       .oneOf([yup.ref('pin')], 'Your pin do not match'),
   })
   .required();
-const CreatePin = () => {
+const UpdatePin = () => {
   const {goBack, navigate} = useNavigation();
   const dispatch = useDispatch();
   const toast = useToast();
   const {user} = useAuth();
-  const [createPin, {isLoading}] = useCreatePinMutation();
+  const [updatePin, {isLoading}] = useUpdatePinMutation();
 
   const onSubmit = async credentials => {
-    credentials.code = user.code ? user.code : '234';
-    credentials.mobile_number = user.mobile_number;
-    if (user.has_pin) {
-      console.log(credentials);
-      navigate('VerifyPin', {
-        details: credentials,
-        action: createPin,
+    const response = await performAsyncCalls(credentials, updatePin);
+    console.log(response);
+    if (response && response.success) {
+      toast.show(response.message, {
+        type: 'success',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
       });
+      dispatch(updateCredentials({user: response.data}));
+      goBack();
     } else {
-      const response = await performAsyncCalls(credentials, createPin);
-      console.log(response);
-      if (response.success === false) {
-        toast.show(response.message, {
-          type: 'danger',
-          placement: 'top',
-          duration: 4000,
-          animationType: 'zoom-in',
-        });
-      } else {
-        toast.show(response.message, {
-          type: 'success',
-          placement: 'top',
-          duration: 4000,
-          animationType: 'zoom-in',
-        });
-        dispatch(updateCredentials({user: response.data}));
-        goBack();
-      }
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
     }
   };
+
   const {
     control,
     handleSubmit,
@@ -80,6 +75,7 @@ const CreatePin = () => {
     getValues,
   } = useForm({
     defaultValues: {
+      old_pin: '',
       pin: '',
       confirm_pin: '',
     },
@@ -87,10 +83,7 @@ const CreatePin = () => {
   });
   return (
     <Container>
-      <Header
-        leftIcon={true}
-        text={user.has_pin ? 'Update Pin' : 'Create Pin'}
-      />
+      <Header leftIcon={true} text={'updatee Pin'} />
       <ScrollView>
         <Box
           width={widthPercentageToDP('80%')}
@@ -99,8 +92,7 @@ const CreatePin = () => {
           marginTop={'m'}
           alignItems={'center'}>
           <Text variant={'medium'} textAlign="center" color="muted">
-            Create a transaction pin to authorise all your outward transaction
-            on MyCredly Transaction pin must be up to 6-digitss
+            Please Enter your old pin to change you transaction pin
           </Text>
         </Box>
         <Box
@@ -112,6 +104,38 @@ const CreatePin = () => {
           paddingVertical={'my4'}
           paddingHorizontal={'mx3'}
           backgroundColor={'secondary'}>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({field: {onChange, value}}) => (
+              <Input
+                label={'Name'}
+                value={value}
+                type={'none'}
+                max={6}
+                keyboard="phone-pad"
+                placeholder={'Old Pin'}
+                onChange={input => {
+                  onChange(input);
+                }}
+                hasError={errors.old_pin ? true : false}
+              />
+            )}
+            name="old_pin"
+          />
+          {errors.old_pin && (
+            <Box width={'100%'}>
+              <Text
+                variant={'regular'}
+                alignSelf="flex-end"
+                textAlign="right"
+                color="danger">
+                {errors.old_pin?.message}
+              </Text>
+            </Box>
+          )}
           <Controller
             control={control}
             rules={{
@@ -185,6 +209,7 @@ const CreatePin = () => {
             labelStyle={{color: 'white'}}
             keyboard="phone-pad"
             paddingVertical={'my2'}
+            childColor={'white'}
             marginVertical={'my3'}
             borderRadius={30}
             alignItems={'center'}
@@ -195,7 +220,7 @@ const CreatePin = () => {
   );
 };
 
-export default CreatePin;
+export default UpdatePin;
 
 const styles = StyleSheet.create({
   image: {

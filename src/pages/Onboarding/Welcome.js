@@ -24,14 +24,18 @@ const Welcome = () => {
         <LinearGradient
           colors={['#A7E05F', '#12AB97']}
           style={styles.linearGradient}>
-          <Text variant={'bold'}>Welcome to MyCredly</Text>
-          <Text variant={'regular'} style={styles.descriptionStyle}>
-            Reference site about Lorem Ipsum, giving information origins as well
-            as a random{' '}
+          <Text variant={'bold'} fontSize={20}>
+            Real Time
+          </Text>
+          <Text
+            variant={'regular'}
+            textAlign={'left'}
+            style={styles.descriptionStyle}>
+            Get real time currency conversion rates
           </Text>
           <Button
             label="Get Started"
-            onPress={() => navigate('Signup')}
+            onPress={() => navigate('Login')}
             backgroundColor={'foreground'}
             width={widthPercentageToDP('80%')}
             labelStyle={{color: 'black'}}

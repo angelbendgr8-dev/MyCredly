@@ -22,17 +22,14 @@ const restyleFunctions = composeRestyleFunctions<Theme, RestyleProps>([
   border,
   backgroundColor,
 ]);
-type Props = RestyleProps & {
-  style?: {};
-};
-const Container: React.FC<Props> = ({children, style, ...rest}) => {
+type Props = RestyleProps & {};
+const Container: React.FC<Props> = ({children, ...rest}) => {
   const props = useRestyle(restyleFunctions, rest);
   return (
     <Box
       {...props}
       flex={1}
       backgroundColor="background"
-      style={style}
       paddingTop={Platform.OS === 'android' ? 's' : 'm'}>
       {children}
     </Box>

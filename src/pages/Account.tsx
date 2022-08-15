@@ -14,6 +14,10 @@ import {widthPercentageToDP} from 'react-native-responsive-screen';
 import CheckBox from '@react-native-community/checkbox';
 import {useTheme} from '@shopify/restyle';
 import ToggleSwitch from 'toggle-switch-react-native';
+import {useAuth} from '../state/hooks/userAuth';
+import {Chase} from 'react-native-animated-spinkit';
+import {useDispatch} from 'react-redux';
+import {signOut} from '../state/reducers/userAuth';
 
 type ItemProps = {
   text: string;
@@ -22,11 +26,13 @@ type ItemProps = {
   pressed?: () => void;
   toggleRadio?: (e: Event) => void;
   hasRadio?: boolean;
+  isloading?: boolean;
   enable2fa?: boolean;
 };
 
 const AccountCard = () => {
   const {navigate} = useNavigation();
+  const {user} = useAuth();
 
   return (
     <Clickable
@@ -38,10 +44,16 @@ const AccountCard = () => {
       borderRadius={15}
       flexDirection={'row'}>
       <Box flexDirection={'row'} alignItems={'center'}>
-        <Image source={{}} style={styles.img} />
+        <Box
+          backgroundColor={'muted'}
+          marginRight="mx2"
+          padding="mx4"
+          borderRadius={60}>
+          <Icon name="user" color="white" size={25} />
+        </Box>
         <Box>
           <Text variant={'medium'} color="success1">
-            Awoniyi Klama
+            {user.first_name} {user.last_name}
           </Text>
           <Text variant={'regular'}>Level one</Text>
         </Box>
@@ -60,6 +72,7 @@ export const AccountItem: React.FC<ItemProps> = ({
   hasRightIcon = false,
   hasRadio = false,
   toggleRadio = () => {},
+  isloading = false,
   enable2fa = false,
 }) => {
   const {} = useNavigation();
@@ -78,6 +91,7 @@ export const AccountItem: React.FC<ItemProps> = ({
         <Text variant={'regular'} marginLeft="m">
           {text}
         </Text>
+        {isloading && <Chase color="white" size={14} />}
       </Box>
       {hasRightIcon && (
         <TouchableOpacity style={{padding: 2}}>
@@ -100,6 +114,7 @@ export const AccountItem: React.FC<ItemProps> = ({
 
 const Account = () => {
   const {navigate} = useNavigation();
+  const dispatch = useDispatch();
   return (
     <Container>
       <Header text="Settings" />
@@ -161,6 +176,7 @@ const Account = () => {
             leftIcon={() => <Icon name="logout" color={'white'} size={16} />}
             text="Logout"
             hasRightIcon={true}
+            pressed={() => dispatch(signOut())}
           />
         </Box>
       </Box>
