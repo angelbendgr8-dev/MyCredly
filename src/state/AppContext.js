@@ -6,7 +6,8 @@ const AppContextProvider = props => {
   const [showModal, setShowModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [category, setCategory] = useState(null);
-  const [cwallet, setCwallet] = useState('')
+  const [cwallet, setCwallet] = useState('');
+  const [preceipt, setPreceipt] = useState({});
   const value = useMemo(
     () => ({
       showModal,
@@ -16,9 +17,11 @@ const AppContextProvider = props => {
       category,
       setCategory,
       cwallet,
-      setCwallet
+      setCwallet,
+      preceipt,
+      setPreceipt,
     }),
-    [showModal, showFilter,category,cwallet],
+    [showModal, showFilter, category, cwallet,preceipt],
   );
 
   return (

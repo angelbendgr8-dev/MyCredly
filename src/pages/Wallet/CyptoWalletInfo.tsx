@@ -1,5 +1,5 @@
-import {ScrollView} from 'react-native';
-import React, {useContext, useState} from 'react';
+import {Image, ScrollView} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -12,14 +12,15 @@ import Header from '../../Components/Header';
 import Container from '../../Components/Container';
 import {Item} from './Fiats';
 import _ from 'lodash';
-import {AppContext} from '../../state/AppContext';
+import {assetUrl, currencyFormat} from '../../helpers/constants';
+import {useGetConversionRateQuery} from '../../state/services/misc.services';
 
 type Props = {
   item: Item;
 };
 const HeaderCard: React.FC<Props> = ({item}) => {
   const {navigate} = useNavigation();
-  const {setCwallet} = useContext(AppContext);
+
   return (
     <Box
       backgroundColor={'success1'}
@@ -63,10 +64,7 @@ const HeaderCard: React.FC<Props> = ({item}) => {
       <Box flexDirection={'row'} justifyContent="space-evenly">
         <Button
           label="Fund"
-          onPress={() => {
-            setCwallet(item);
-            navigate('FundWallet')
-          }}
+          onPress={() => navigate('FundWallet')}
           backgroundColor={'faint'}
           width={widthPercentageToDP('40%')}
           labelStyle={{color: 'white', fontSize: 16, zIndex: 10}}
@@ -96,20 +94,97 @@ const HeaderCard: React.FC<Props> = ({item}) => {
   );
 };
 
-const WalletInfo: React.FC<Props> = () => {
+const CryptoWalletInfo: React.FC<Props> = () => {
   const {params} = useRoute();
-  //   console.log(params);
+  // console.log(params);
   const {item} = params;
+  const [skip, setSkip] = useState(true);
+  const {navigate} =useNavigation();
+  const {data, isLoading} = useGetConversionRateQuery(
+    {
+      symbol: item.name,
+      convert: 'USD',
+      amount: item.balance,
+    },
+    {skip},
+  );
   const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    if (data) {
+      console.log(data);
+    }
+    if (item.balance > 0) {
+      setSkip(false);
+    }
+  }, [data, isLoading, item]);
+
+  useEffect(() => {}, [skip]);
 
   return (
     <Container>
       <Header leftIcon={true} />
       <Box paddingVertical={'mx3'} paddingHorizontal="mx3">
-        <Text variant={'medium'} marginVertical="my3" color="foreground">
+        {/* <Text variant={'medium'} marginVertical="my3" color="foreground">
           {item.label} Wallet
-        </Text>
-        <HeaderCard item={item} />
+        </Text> */}
+        <Box
+          backgroundColor={'background'}
+          // height={40}
+          // width={40}
+          alignItems="center"
+          justifyContent={'center'}
+          borderRadius={150}>
+          <Image
+            source={{uri: `${assetUrl()}${item.wType.icon}`}}
+            style={{height: 60, width: 60, borderRadius:60}}
+          />
+          <Text variant={'regular'} textTransform={'capitalize'} fontSize={18}>
+            {item.wType.name}
+          </Text>
+          <Text variant="regular" fontSize={18}>
+            {item.balance.toFixed(5)} {item.name}
+          </Text>
+          <Text variant="regular" fontSize={18}>
+            = {item.balance === 0 ? `$ ${item.balance.toFixed(2)}` : `$ ${0}`}
+          </Text>
+          <Box flexDirection={'row'} justifyContent="space-evenly">
+            <Button
+              label="Fund"
+              onPress={() => navigate('DepositCrypto',{item})}
+              backgroundColor={'success1'}
+              width={widthPercentageToDP('40%')}
+              labelStyle={{color: 'white', fontSize: 16, zIndex: 10}}
+              paddingVertical={'my2'}
+              borderWidth={0.5}
+              borderColor="success"
+              marginVertical={'my3'}
+              opacity={0.8}
+              marginRight="s"
+              elevation={5}
+              borderRadius={10}
+              alignItems={'center'}
+            />
+            <Button
+              label="Withdraw"
+              onPress={() => navigate('WithdrawFund')}
+              backgroundColor={'transparent'}
+              width={widthPercentageToDP('40%')}
+              // opacity={1}
+              borderWidth={0.5}
+              borderColor="foreground"
+              labelStyle={{color: 'white', fontSize: 16}}
+              paddingVertical={'my2'}
+              marginVertical={'my3'}
+              marginLeft="s"
+              borderRadius={10}
+              opacity={0.8}
+              elevation={5}
+              alignItems={'center'}
+            />
+          </Box>
+        </Box>
+        {/* <HeaderCard item={item} /> */}
         <Text variant={'bold'} fontSize={20} color="foreground">
           Transactions
         </Text>
@@ -129,4 +204,4 @@ const WalletInfo: React.FC<Props> = () => {
   );
 };
 
-export default WalletInfo;
+export default CryptoWalletInfo;

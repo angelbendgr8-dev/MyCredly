@@ -9,6 +9,8 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import Text from '../../Components/Text';
 import Clickable from '../../Components/Clickable';
 import {useNavigation} from '@react-navigation/native';
+import {useWallet} from '../../state/hooks/wallet.hooks';
+import { assetUrl } from '../../helpers/constants';
 
 const data = [
   {label: 'NGN', value: 'NGN', icon: ngn, code: '₦'},
@@ -16,8 +18,8 @@ const data = [
   {label: 'USD', value: 'USD', icon: usa, code: '$'},
 ];
 export interface Item {
-  label: String;
-  value: String;
+  label: string;
+  value: string;
   code: string;
   icon?: object;
 }
@@ -27,6 +29,7 @@ type Props = {
 
 const WalletItem: React.FC<Props> = ({item}) => {
   const {navigate} = useNavigation();
+
   return (
     <Clickable
       flexDirection="row"
@@ -47,11 +50,14 @@ const WalletItem: React.FC<Props> = ({item}) => {
           alignItems="center"
           justifyContent={'center'}
           borderRadius={150}>
-          <Image source={item.icon} style={{height: 15, width: 20}} />
+          <Image
+            source={{uri: `${assetUrl()}${item.wType.icon}`}}
+            style={{height: 20, width: 20}}
+          />
         </Box>
         <Box marginLeft={'mx2'}>
           <Text variant={'medium'} fontSize={12} color="success1">
-            {item.label} Wallet
+            {item.name} Wallet
           </Text>
           <Text variant={'regular'} fontSize={13}>
             {item.code} 0.00
@@ -64,14 +70,15 @@ const WalletItem: React.FC<Props> = ({item}) => {
 };
 
 const Fiats = () => {
+  const {fiats} = useWallet();
   return (
     <Container paddingHorizontal={'mx3'}>
-      {_.isEmpty(data) ? (
+      {_.isEmpty(fiats) ? (
         <Box>No wallet items</Box>
       ) : (
         <ScrollView>
-          {data.map(item => (
-            <WalletItem key={item.label} item={item} />
+          {fiats.map(item => (
+            <WalletItem key={item.id} item={item} />
           ))}
         </ScrollView>
       )}

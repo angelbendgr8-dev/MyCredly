@@ -8,7 +8,9 @@ import _ from 'lodash';
 
 import Icon from 'react-native-vector-icons/AntDesign';
 import Clickable from '../../Components/Clickable';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+import {useWallet} from '../../state/hooks/wallet.hooks';
+import { assetUrl } from '../../helpers/constants';
 
 const data = [
   {label: 'BTC', value: 'BTC', icon: bitcoin, code: '₦'},
@@ -34,7 +36,7 @@ const WalletItem: React.FC<Props> = ({item}) => {
       backgroundColor={'secondary'}
       alignItems="center"
       paddingHorizontal="mx3"
-      onPress={() => navigate('WalletInfo', {item})}
+      onPress={() => navigate('CryptoWalletInfo', {item})}
       paddingVertical={'my3'}
       borderRadius={10}
       elevation={15}
@@ -49,16 +51,16 @@ const WalletItem: React.FC<Props> = ({item}) => {
           justifyContent={'center'}
           borderRadius={150}>
           <Image
-            source={item.icon}
-            style={{height: 20, width: 20, tintColor: 'white'}}
+            source={{uri: `${assetUrl()}${item.wType.icon}`}}
+            style={{height: 20, width: 20,borderRadius:60}}
           />
         </Box>
         <Box marginLeft={'mx2'}>
           <Text variant={'medium'} fontSize={12} color="success1">
-            {item.label} Wallet
+            {item.name} Wallet
           </Text>
           <Text variant={'regular'} fontSize={13}>
-            0.00  {item.label}
+            0.00 {item.name}
           </Text>
         </Box>
       </Box>
@@ -68,14 +70,15 @@ const WalletItem: React.FC<Props> = ({item}) => {
 };
 
 const Crypto = () => {
+  const {cryptos} = useWallet();
   return (
     <Container paddingHorizontal={'mx4'}>
-      {_.isEmpty(data) ? (
+      {_.isEmpty(cryptos) ? (
         <Box>No wallet items</Box>
       ) : (
         <ScrollView>
-          {data.map(item => (
-            <WalletItem key={item.label} item={item} />
+          {cryptos.map(item => (
+            <WalletItem key={item.id} item={item} />
           ))}
         </ScrollView>
       )}

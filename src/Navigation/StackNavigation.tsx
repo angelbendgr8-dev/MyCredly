@@ -29,20 +29,13 @@ import ResetPassword from '../pages/Authentication/ResetPassword';
 import {useAuth} from '../state/hooks/userAuth';
 import UpdatePin from '../pages/Settings/EditProfile/UpdatePin';
 import VerifyPin from '../pages/VerifyPin';
-import {useGetAdminAccountQuery} from '../state/services/misc.services';
-import {useDispatch} from 'react-redux';
-import {addAccount} from '../state/reducers/misc.reducer';
+import CryptoWalletInfo from '../pages/Wallet/CyptoWalletInfo';
+import DepositCtypto from '../pages/Wallet/DepositCrypto';
 const Stack = createNativeStackNavigator<MainStack>();
 
 function StackNavigation() {
   const {token} = useAuth();
-  const {data: adminaccount} = useGetAdminAccountQuery();
-  const dispatch = useDispatch();
-  React.useEffect(() => {
-    if (adminaccount) {
-      dispatch(addAccount({account: adminaccount.data}));
-    }
-  }, [adminaccount, dispatch]);
+  
   React.useEffect(() => {
     setTimeout(() => SplashScreen.hide(), 3000);
   }, []);
@@ -77,6 +70,8 @@ function StackNavigation() {
           <Stack.Screen name="BankAndCards" component={BanksAndCard} />
           <Stack.Screen name="Cards" component={Cards} />
           <Stack.Screen name="WalletInfo" component={WalletInfo} />
+          <Stack.Screen name="CryptoWalletInfo" component={CryptoWalletInfo} />
+          <Stack.Screen name="DepositCrypto" component={DepositCtypto} />
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="CreatePin" component={CreatePin} />
           <Stack.Screen name="UpdatePin" component={UpdatePin} />

@@ -113,6 +113,7 @@ const HeaderCard = () => {
   const [balance, setBalance] = useState(0.0);
   const [icon, setIcon] = useState('');
   const [code, setCode] = useState('₦');
+  const [selected, setSelected] = useState(fiats[0]);
   // console.log(`${assetUrl()}${fiats[0].wType.icon}`);
   const {setCwallet} = useContext(AppContext);
   const renderItem = (item: any) => {
@@ -184,7 +185,7 @@ const HeaderCard = () => {
             containerStyle={[
               {backgroundColor: faint, borderWidth: 0, opacity: 0.8},
             ]}
-            data={fiats}
+            data={_.size(fiats) > 0 ? fiats : []}
             maxHeight={300}
             width={200}
             labelField="name"
@@ -193,6 +194,7 @@ const HeaderCard = () => {
             value={value}
             onChange={item => {
               setValue(item.name);
+              setSelected(item);
               setIcon(item.wType.icon);
               setCode(item.wType.sign);
               setBalance(item.balance);
@@ -212,7 +214,7 @@ const HeaderCard = () => {
           label="Fund"
           onPress={() => {
             setCwallet(value);
-            navigate('FundWallet');
+            navigate('WalletInfo', {item: selected});
           }}
           backgroundColor={'faint'}
           width={widthPercentageToDP('40%')}

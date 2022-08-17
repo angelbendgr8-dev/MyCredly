@@ -6,6 +6,7 @@ import Select from '../../Components/Select';
 import Button from '../../Components/Button';
 import Input from '../../Components/Input';
 import {AppContext} from '../../state/AppContext';
+import _, {isEmpty} from 'lodash';
 
 import {
   heightPercentageToDP,
@@ -17,34 +18,50 @@ import {useForm, Controller} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import ModalContainer from '../../Components/Modal';
-import {useRoute} from '@react-navigation/native';
 import {useWallet} from '../../state/hooks/wallet.hooks';
-import {useFundWalletMutation} from '../../state/services/wallet.services';
+import {
+  useFundWalletMutation,
+  useUploadRecieptMutation,
+} from '../../state/services/wallet.services';
+import {performAsyncCalls} from '../../helpers/constants';
+import {useToast} from 'react-native-toast-notifications';
+import Clickable from '../../Components/Clickable';
+import {useClipboard} from '@react-native-clipboard/clipboard';
+
+import Icon from 'react-native-vector-icons/Feather';
+import UploadReceipt from './uploadReciept';
+import {Loader} from '../../Components/Loader';
+import {useNavigation} from '@react-navigation/native';
 const Box = createBox();
 const data = [{label: 'Bank  Transfer', value: 'Bank Transfer'}];
 
 const schema = yup
   .object({
-    email: yup
-      .string()
-      .email('Must be a valid email')
-      .max(255)
-      .required('Email is required'),
-
-    password: yup.string().required('Password is required'),
+    amount: yup.number().min(2000, 'minimum deposit is 2000'),
   })
   .required();
 
 const Fund = () => {
   const theme = useTheme();
+  const {muted} = theme.colors;
   const {setShowModal} = useContext(AppContext);
   const {cwallet} = useContext(AppContext);
   // const {type} = params;
   const [wallet, setWallet] = useState({});
   const {wallets} = useWallet();
-  const [formSubmited, setFormSubmited] = useState(false);
-  const [fundWallet, {isLoading}] = useFundWalletMutation();
+  const [receiptUpload, setReceipttUpload] = useState(false);
+  const [fundWallet, {isLoading: fundWalletLoading}] = useFundWalletMutation();
+  const [uploadReciept, {isLoading: uploadingReceipt}] =
+    useUploadRecieptMutation();
+  const [showPayment, setShowPayment] = useState(false);
+  const [confirmDeposit, setConfirmDeposit] = useState(false);
+  const [formData, setFormData] = useState({});
+  const {preceipt, setPreceipt} = useContext(AppContext);
+  const [paymentDetails, setPaymentDetails] = useState({});
+  const toast = useToast();
 
+  const [{data: clipData}, setText] = useClipboard();
+  const {navigate} = useNavigation();
   const {
     control,
     handleSubmit,
@@ -53,33 +70,99 @@ const Fund = () => {
   } = useForm({
     defaultValues: {
       amount: 0,
-      wallet_id: wallet.id,
+      wallet_id: wallet?.id,
     },
     resolver: yupResolver(schema),
   });
 
-  const confirm = () => {
-    setShowModal(false);
+  const confirm = async () => {
+    setConfirmDeposit(false);
+    // console.log(formData);
+    const response = await performAsyncCalls(formData, fundWallet);
+    // console.log(response);
+    if (response.success === false) {
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    } else {
+      // const {data} = response;
+      setShowPayment(true);
+      setReceipttUpload(true);
+      setPaymentDetails(response.data);
+      console.log(response);
+    }
   };
+
+  const copyToClipboard = () => {
+    setText(`${item.wType.name}: ${item.address}`);
+    toast.show('address Copied', {
+      type: 'success',
+      placement: 'top',
+      duration: 4000,
+      animationType: 'zoom-in',
+    });
+  };
+
   useEffect(() => {
-    const temp = wallets.filter(item => item.name === cwallet);
-    console.log(temp);
-    setWallet(temp[0]);
+    // console.log(cwallet);
+    if (cwallet) {
+      const temp = wallets.filter(item => item.id === cwallet.id);
+      // console.log(temp);
+      setWallet(temp[0]);
+    }
   }, [wallets, cwallet]);
   useEffect(() => {
-    console.log(wallet);
-  }, [wallet]);
+    console.log(paymentDetails);
+  }, [wallet, paymentDetails]);
 
-  const createTransaction = () => {};
+  const onSubmit = credentials => {
+    credentials.wallet_id = wallet.id;
+    setFormData(credentials);
+    setConfirmDeposit(true);
+  };
   const cancel = () => {
-    setShowModal(false);
+    setConfirmDeposit(false);
+    // handleSubmit(createTransaction);
+  };
+  const uploadPaymentReceipt = async () => {
+    console.log(preceipt);
+    let receiptData = new FormData();
+
+    receiptData.append('image', preceipt);
+    receiptData.append('wallet_id', paymentDetails.transaction.id);
+    // console.log(receiptData);
+    const response = await uploadReciept(receiptData);
+    console.log(response);
+    if (response.success === false) {
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    } else {
+      // const {data} = response;
+      toast.show('Receipt Uploaded Successfully', {
+        type: 'success',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+      // setPaymentDetails(response.data);
+      navigate('Dashboard');
+    }
   };
   return (
     <Box flex={1} backgroundColor={'background'}>
+      <Loader visible={fundWalletLoading || uploadingReceipt} />
       <ModalContainer
         primaryText={'Confirm Deposit'}
         onCancelled={cancel}
         onConfirmed={confirm}
+        visible={confirmDeposit}
         secondaryText={
           '3rd party payments will not be approved and will be refunded'
         }
@@ -87,10 +170,9 @@ const Fund = () => {
       <ModalContainer
         primaryText={'Confirm Payment'}
         onCancelled={cancel}
-        onConfirmed={confirm}
-        secondaryText={
-          '3rd party payments will not be approved and will be refunded'
-        }
+        onConfirmed={() => setShowPayment(false)}
+        visible={showPayment}
+        secondaryText={'your account will be update one payment is confirmed'}
       />
       <Box
         marginHorizontal={'mx3'}
@@ -123,6 +205,7 @@ const Fund = () => {
                   label={'Amount'}
                   value={value}
                   type={'none'}
+                  disabled={!receiptUpload}
                   customStyles={{
                     margin: 0,
                     borderRadius: 30,
@@ -157,18 +240,187 @@ const Fund = () => {
               </Text>
             </Box>
           </Box>
-          <Box></Box>
-          <Button
-            label="Submit"
-            onPress={() => setShowModal(true)}
-            backgroundColor={'success1'}
-            width={'100%'}
-            labelStyle={{color: 'white'}}
-            paddingVertical={'my2'}
-            marginVertical={'my3'}
-            borderRadius={30}
-            alignItems={'center'}
-          />
+          <Box />
+          {!receiptUpload && (
+            <Button
+              label="Submit"
+              onPress={handleSubmit(onSubmit)}
+              backgroundColor={'success1'}
+              width={'100%'}
+              labelStyle={{color: 'white'}}
+              paddingVertical={'my2'}
+              marginVertical={'my3'}
+              borderRadius={30}
+              alignItems={'center'}
+            />
+          )}
+          {receiptUpload && !_.isEmpty(paymentDetails) && (
+            <>
+              <Box
+                // borderBottomWidth={1}
+                backgroundColor="background"
+                borderBottomColor={'muted'}
+                borderRadius={10}
+                elevation={0.5}>
+                <Box paddingVertical={'mx4'} paddingHorizontal="mx4">
+                  <Text variant={'medium'}>
+                    {paymentDetails ? paymentDetails?.bank.bank_name : ''}
+                  </Text>
+                </Box>
+                <Box borderBottomWidth={0.3} borderBottomColor={'muted'} />
+                <Box
+                  flexDirection={'row'}
+                  justifyContent={'center'}
+                  borderBottomWidth={0.3}
+                  borderBottomColor={'muted'}
+                  flexWrap="wrap">
+                  <Box
+                    flexDirection={'row'}
+                    padding={'mx1'}
+                    alignItems="center"
+                    borderRightColor={'muted'}
+                    borderRightWidth={0.5}
+                    paddingRight="mx2"
+                    marginVertical={'my2'}>
+                    <Box width={widthPercentageToDP('25%')}>
+                      <Text variant={'regular'} fontSize={14} color={'muted'}>
+                        Account Name
+                      </Text>
+                      <Text variant={'regular'}>
+                        {paymentDetails
+                          ? paymentDetails?.bank.account_name
+                          : ''}
+                      </Text>
+                    </Box>
+                    <Clickable
+                      onPress={() => copyToClipboard()}
+                      backgroundColor={'secondary'}
+                      borderRadius={5}
+                      padding="s">
+                      <Icon name="copy" size={14} color={muted} />
+                    </Clickable>
+                  </Box>
+                  <Box
+                    flexDirection={'row'}
+                    padding={'mx1'}
+                    alignItems="center"
+                    marginLeft="mx2"
+                    marginVertical={'my2'}>
+                    <Box width={widthPercentageToDP('25%')}>
+                      <Text variant={'regular'} fontSize={14} color={'muted'}>
+                        Account Number
+                      </Text>
+                      <Text variant={'regular'}>
+                        {paymentDetails
+                          ? paymentDetails?.bank.account_number
+                          : ''}
+                      </Text>
+                    </Box>
+                    <Clickable
+                      onPress={() => copyToClipboard()}
+                      backgroundColor={'secondary'}
+                      borderRadius={5}
+                      padding="s">
+                      <Icon name="copy" size={14} color={muted} />
+                    </Clickable>
+                  </Box>
+                </Box>
+                <Box
+                  flexDirection={'row'}
+                  justifyContent={'center'}
+                  flexWrap="wrap">
+                  <Box
+                    flexDirection={'row'}
+                    padding={'mx1'}
+                    alignItems="center"
+                    borderRightColor={'muted'}
+                    borderRightWidth={0.5}
+                    paddingRight="mx2"
+                    marginVertical={'my2'}>
+                    <Box width={widthPercentageToDP('25%')}>
+                      <Text variant={'regular'} fontSize={14} color={'muted'}>
+                        Transaction Reference
+                      </Text>
+                      <Text variant={'regular'}>
+                        {paymentDetails.transaction.trx_ref}
+                      </Text>
+                    </Box>
+                    <Clickable
+                      onPress={() => copyToClipboard()}
+                      backgroundColor={'secondary'}
+                      borderRadius={5}
+                      padding="s">
+                      <Icon name="copy" size={14} color={muted} />
+                    </Clickable>
+                  </Box>
+                  <Box
+                    flexDirection={'row'}
+                    padding={'mx1'}
+                    alignItems="center"
+                    marginLeft="mx2"
+                    marginVertical={'my2'}>
+                    <Box width={widthPercentageToDP('25%')}>
+                      {/* <Text variant={'regular'} fontSize={14} color={'muted'}>
+                        Account Name
+                      </Text>
+                      <Text variant={'regular'}>olanrewaju benjamin</Text> */}
+                    </Box>
+                    <Clickable
+                      onPress={() => copyToClipboard()}
+                      // backgroundColor={'secondary'}
+                      borderRadius={5}
+                      padding="s">
+                      <Text variant={'regular'} />
+                    </Clickable>
+                  </Box>
+                </Box>
+              </Box>
+              <UploadReceipt />
+
+              <Box flexDirection={'row'} justifyContent="space-evenly">
+                <Button
+                  label="upload receipt"
+                  onPress={uploadPaymentReceipt}
+                  backgroundColor={'success1'}
+                  width={widthPercentageToDP('40%')}
+                  labelStyle={{color: 'white', fontSize: 16, zIndex: 10}}
+                  paddingVertical={'my2'}
+                  borderWidth={0.5}
+                  borderColor="success"
+                  marginVertical={'my3'}
+                  opacity={0.8}
+                  marginRight="s"
+                  elevation={5}
+                  borderRadius={10}
+                  alignItems={'center'}
+                />
+                <Button
+                  label="cancel payment"
+                  onPress={() => navigate('WithdrawFund')}
+                  backgroundColor={'transparent'}
+                  width={widthPercentageToDP('40%')}
+                  // opacity={1}
+                  borderWidth={0.5}
+                  borderColor="foreground"
+                  labelStyle={{color: 'white', fontSize: 16}}
+                  paddingVertical={'my2'}
+                  marginVertical={'my3'}
+                  marginLeft="s"
+                  borderRadius={10}
+                  opacity={0.8}
+                  elevation={5}
+                  alignItems={'center'}
+                />
+              </Box>
+              <Box flexDirection={'row'} justifyContent={'center'}>
+                <Text variant={'medium'}>Note: </Text>
+                <Text variant={'regular'} fontSize={12}>
+                  Payment must include the tranaction reference in this form.Not
+                  doing so may caouse delay in processing
+                </Text>
+              </Box>
+            </>
+          )}
         </ScrollView>
       </Box>
     </Box>

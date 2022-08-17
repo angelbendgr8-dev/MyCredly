@@ -11,17 +11,19 @@ type Props = {
   secondaryText: string;
   onConfirmed: () => void;
   onCancelled: () => void;
+  visible: boolean;
 };
 const ModalContainer: React.FC<Props> = ({
   primaryText,
   secondaryText,
   onConfirmed,
   onCancelled,
+  visible,
 }: Props) => {
-  const {showModal} = useContext(AppContext);
+  // const {showModal} = useContext(AppContext);
   return (
     <Box>
-      <Modal isVisible={showModal}>
+      <Modal isVisible={visible}>
         <Box
           backgroundColor={'secondary'}
           paddingTop={'my3'}

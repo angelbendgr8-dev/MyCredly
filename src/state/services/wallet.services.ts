@@ -32,9 +32,20 @@ export const WalletApi = createApi({
         body: credentials,
       }),
     }),
+    uploadReciept: builder.mutation({
+      query: credentials => ({
+        url: 'users/upload/payment/receipt',
+        method: 'post',
+        body: credentials,
+      }),
+    }),
   }),
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const {useGetWalletsQuery, useFundWalletMutation} = WalletApi;
+export const {
+  useGetWalletsQuery,
+  useFundWalletMutation,
+  useUploadRecieptMutation,
+} = WalletApi;

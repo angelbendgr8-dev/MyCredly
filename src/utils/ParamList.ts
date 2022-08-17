@@ -9,9 +9,7 @@ export type MainStack = {
   Welcome: undefined;
   ForgotPassword: undefined;
   ResetPassword: undefined;
-  FundWallet: {
-    type: string;
-  };
+  FundWallet: undefined;
   WithdrawFund: undefined;
   Dashboard: undefined;
   BankAndCards: undefined;
@@ -30,6 +28,12 @@ export type MainStack = {
   CryptoAlerts: undefined;
   AddCryptoAlert: undefined;
   WalletInfo: {
+    item: Item;
+  };
+  CryptoWalletInfo: {
+    item: Item;
+  };
+  DepositCrypto: {
     item: Item;
   };
 };
