@@ -31,22 +31,18 @@ import {
 } from '../../state/services/wallet.services';
 import {useNavigation} from '@react-navigation/native';
 import {performAsyncCalls} from '../../helpers/constants';
-import {
-  addWithdrawal,
-  setWithdrawals,
-} from '../../state/reducers/transactions.reducer';
+import {setWithdrawals} from '../../state/reducers/transactions.reducer';
 
 const schema = yup
   .object({
     amount: yup.string().required('Amount is Required'),
-    bank_id: yup.string().required('Bank is Required'),
+    address: yup.string().required('Address is Required'),
   })
   .required();
 
-const Withdraw = () => {
+const CWithdraw = () => {
   // const theme = useTheme();
   // const {foreground} = theme.colors;
-  const {data: bankData, isLoading} = useGetBanksQuery();
   const {data: withdrawals, isLoading: withdrawalHistory} =
     useGetWithdrawalsQuery();
   const [withdrawFunds, {isLoading: withdrawalLoading}] =
@@ -68,23 +64,10 @@ const Withdraw = () => {
   } = useForm({
     defaultValues: {
       amount: '',
-      bank_id: '',
+      address: '',
     },
     resolver: yupResolver(schema),
   });
-
-  useEffect(() => {
-    if (bankData) {
-      // console.log(bankData);
-      if (_.size(bankData.data) > 0) {
-        dispatch(setBanks({banks: bankData.data}));
-      } else {
-        setShowModal(true);
-      }
-    }
-  }, [bankData, setShowModal, dispatch]);
-
-  useEffect(() => {}, [banks]);
 
   useEffect(() => {
     if (withdrawals) {
@@ -114,8 +97,6 @@ const Withdraw = () => {
       });
     } else {
       // const {data} = response;
-      console.log(response);
-      dispatch(addWithdrawal({withdrawal: data.data}));
       toast.show(response.message, {
         type: 'success',
         placement: 'top',
@@ -127,7 +108,7 @@ const Withdraw = () => {
   };
   return (
     <Box flex={1} backgroundColor={'background'}>
-      <Loader visible={isLoading || withdrawalLoading} />
+      <Loader visible={withdrawalLoading} />
       <ModalContainer
         primaryText={'Confirm Deposit'}
         visible={showModal}
@@ -137,6 +118,7 @@ const Withdraw = () => {
           '3rd party payments will not be approved and will be refunded'
         }
       />
+
       <Box
         marginHorizontal={'mx3'}
         paddingVertical={'my3'}
@@ -145,16 +127,12 @@ const Withdraw = () => {
         backgroundColor={'secondary'}>
         <ScrollView>
           <Box>
-            <Text variant={'regular'}>Fund via</Text>
-            <Select data={data} disabled={false} />
-          </Box>
-          <Box>
             <Text
               variant={'regular'}
               color={'foreground'}
               //   style={{color: foreground}}
               textAlign={'left'}>
-              Amount
+              {cwallet.name} Address
             </Text>
             <Controller
               control={control}
@@ -163,7 +141,7 @@ const Withdraw = () => {
               }}
               render={({field: {onChange, value}}) => (
                 <Input
-                  leftIcon={() => <Text variant={'regular'}>{'₦'}</Text>}
+                  // leftIcon={() => <Text variant={'regular'}>{'₦'}</Text>}
                   value={value}
                   type={'none'}
                   customStyles={{
@@ -172,38 +150,43 @@ const Withdraw = () => {
                     height: heightPercentageToDP('6%'),
                     marginTop: heightPercentageToDP('2%'),
                   }}
-                  placeholder={' Enter Amount'}
+                  placeholder={'Crypto Address'}
                   onChange={input => onChange(input)}
                 />
               )}
-              name="amount"
+              name="address"
             />
-            <Box flexDirection={'row'}>
-              <Text variant={'regular'} color={'muted'}>
-                Wallet Bal:
-              </Text>
-              <Text variant={'regular'} fontSize={14}>
-                {' '}
-                ₦ 0.00
-              </Text>
-            </Box>
+            <Box flexDirection={'row'} marginTop={'my2'} />
           </Box>
 
-          <Box marginTop={'my2'}>
-            <Text variant={'regular'}>Select Bank</Text>
+          <Box>
+            <Text
+              variant={'regular'}
+              color={'foreground'}
+              //   style={{color: foreground}}
+              textAlign={'left'}>
+              {cwallet.name} Amount
+            </Text>
             <Controller
               control={control}
               rules={{
                 required: true,
               }}
               render={({field: {onChange, value}}) => (
-                <Select
-                  data={banks ? banks : []}
-                  onSelect={val => onChange(val)}
-                  disabled={false}
+                <Input
+                  value={value}
+                  type={'none'}
+                  customStyles={{
+                    margin: 0,
+                    borderRadius: 30,
+                    height: heightPercentageToDP('6%'),
+                    marginTop: heightPercentageToDP('2%'),
+                  }}
+                  placeholder={'0.00'}
+                  onChange={input => onChange(input)}
                 />
               )}
-              name="bank_id"
+              name="amount"
             />
           </Box>
 
@@ -228,16 +211,41 @@ const Withdraw = () => {
               onChange={input => console.log(input)}
             /> */}
           </Box>
-          <Text variant="regular" color={'muted'}>
-            Fee Charged ₦ 0.00
-          </Text>
+
           <Box flexDirection={'row'}>
-            <Text variant={'regular'}>Note: </Text>
-            <Text variant={'regular'} color={'muted'}>
+            <Text variant={'regular'} fontSize={13}>
+              Note:{' '}
+            </Text>
+            <Text variant={'regular'} fontSize={12} color={'muted'}>
               Withdrawal may take up to 6 hours
             </Text>
           </Box>
-
+          <Box flexDirection={'row'} marginTop={'s'}>
+            <Text variant={'regular'} fontSize={13} color={'muted'}>
+              Available Bal:
+            </Text>
+            <Text variant={'regular'} fontSize={12}>
+              {' '}
+              0.0.01 {cwallet.name}
+            </Text>
+          </Box>
+          <Box flexDirection={'row'} marginTop={'s'}>
+            <Text variant={'regular'} fontSize={12} color={'muted'}>
+              Minimum {cwallet.name} Withdrawal :
+            </Text>
+            <Text variant={'regular'} fontSize={12}>
+              0.0.01 {cwallet.name}
+            </Text>
+          </Box>
+          <Box flexDirection={'row'} marginTop={'s'}>
+            <Text variant={'regular'} fontSize={12} color={'muted'}>
+              Available Bal:
+            </Text>
+            <Text variant={'regular'} fontSize={12}>
+              {' '}
+              ₦ 0.00
+            </Text>
+          </Box>
           <Button
             label="Submit"
             onPress={handleSubmit(onSubmit, error => console.log(error))}
@@ -255,6 +263,6 @@ const Withdraw = () => {
   );
 };
 
-export default Withdraw;
+export default CWithdraw;
 
 const styles = StyleSheet.create({});

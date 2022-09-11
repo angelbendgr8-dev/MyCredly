@@ -106,9 +106,10 @@ const Fund = () => {
     });
   };
 
+  console.log(cwallet);
   useEffect(() => {
-    // console.log(cwallet);
     if (cwallet) {
+      // console.log(cwallet)
       const temp = wallets.filter(item => item.id === cwallet.id);
       // console.log(temp);
       setWallet(temp[0]);
@@ -412,11 +413,17 @@ const Fund = () => {
                   alignItems={'center'}
                 />
               </Box>
-              <Box flexDirection={'row'} justifyContent={'center'}>
-                <Text variant={'medium'}>Note: </Text>
-                <Text variant={'regular'} fontSize={12}>
-                  Payment must include the tranaction reference in this form.Not
-                  doing so may caouse delay in processing
+              <Box
+                flexDirection={'row'}
+                width={widthPercentageToDP('80%')}
+                marginHorizontal={'mx3'}
+                justifyContent={'center'}>
+                <Text variant={'medium'} textAlign="center">
+                  Note:{'  '}
+                  <Text variant={'regular'} fontSize={12}>
+                    Payment must include the tranaction reference in this
+                    form.Not doing so may caouse delay in processing
+                  </Text>
                 </Text>
               </Box>
             </>

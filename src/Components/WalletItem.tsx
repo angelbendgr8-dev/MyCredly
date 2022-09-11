@@ -1,12 +1,17 @@
 import {Image} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import Box from './Box';
 import Text from './Text';
 
 import Icon from 'react-native-vector-icons/AntDesign';
 import Clickable from './Clickable';
+import {useGetBalanceQuery} from '../state/services/wallet.services';
+import {useDispatch} from 'react-redux';
+import {updateWallet} from '../state/reducers/wallet.reducer';
 
 const WalletItem = ({item}) => {
+  
+
   return (
     <Clickable
       flexDirection="row"

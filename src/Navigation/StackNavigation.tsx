@@ -31,6 +31,10 @@ import UpdatePin from '../pages/Settings/EditProfile/UpdatePin';
 import VerifyPin from '../pages/VerifyPin';
 import CryptoWalletInfo from '../pages/Wallet/CyptoWalletInfo';
 import DepositCtypto from '../pages/Wallet/DepositCrypto';
+import WithdrawCrypto from '../pages/Withdrawal/WithdrawCrypto';
+import CreateListing from '../pages/PeerToPeer/CreateListing';
+import PeerTransaction from '../pages/PeerToPeer/PeerTransaction';
+import TransactionBoard from '../pages/PeerToPeer/TransactionBoard';
 const Stack = createNativeStackNavigator<MainStack>();
 
 function StackNavigation() {
@@ -67,6 +71,7 @@ function StackNavigation() {
           <Stack.Screen name="Dashboard" component={BottomTab} />
           <Stack.Screen name="FundWallet" component={FundWallet} />
           <Stack.Screen name="WithdrawFund" component={WithdrawFund} />
+          <Stack.Screen name="WithdrawCrypto" component={WithdrawCrypto} />
           <Stack.Screen name="BankAndCards" component={BanksAndCard} />
           <Stack.Screen name="Cards" component={Cards} />
           <Stack.Screen name="WalletInfo" component={WalletInfo} />
@@ -82,7 +87,11 @@ function StackNavigation() {
           <Stack.Screen name="AccountVerify" component={AccountVerify} />
           <Stack.Screen name="LevelTwo" component={LevelTwo} />
           <Stack.Screen name="CryptoAlerts" component={CryptoAlerts} />
+          <Stack.Screen name="CreateListing" component={CreateListing} />
           <Stack.Screen name="AddCryptoAlert" component={AddCryptoAlert} />
+          <Stack.Screen name="PeerTransaction" component={PeerTransaction} />
+          <Stack.Screen name="TransactionBoard" component={TransactionBoard} />
+
           <Stack.Screen
             name="PhoneOtpVerification"
             component={PhoneOtpVerification}

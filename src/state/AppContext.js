@@ -5,7 +5,7 @@ export const AppContext = createContext();
 const AppContextProvider = props => {
   const [showModal, setShowModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [category, setCategory] = useState(null);
+  const [category, setCategory] = useState({label: 'All'});
   const [cwallet, setCwallet] = useState('');
   const [preceipt, setPreceipt] = useState({});
   const value = useMemo(

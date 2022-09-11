@@ -5,7 +5,7 @@ import {ReqResponse} from '../interface/error.interface';
 
 export const getUrl = () => {
   if (__DEV__) {
-    return 'https://6e28-102-89-39-193.eu.ngrok.io/api';
+    return 'https://b597-102-89-32-25.eu.ngrok.io/api';
   } else {
     return 'https://mycredly.herokuapp.com/api/';
   }
@@ -13,13 +13,13 @@ export const getUrl = () => {
 
 export const assetUrl = () => {
   if (__DEV__) {
-    return 'https://6e28-102-89-39-193.eu.ngrok.io/storage/';
+    return 'https://b597-102-89-32-25.eu.ngrok.io/storage/';
   } else {
     return 'https://mycredly.herokuapp.com/storage/';
   }
 };
 
-export function currencyFormat(num, code,dec) {
+export function currencyFormat(num, code, dec) {
   return (
     `${code} ` +
     Number(num)
@@ -82,4 +82,22 @@ export function abbrNum(number, decPlaces) {
 
   // console.log('abbrNum(' + orig + ', ' + dec + ') = ' + number);
   return number;
+}
+
+export function toFixed(x) {
+  if (Math.abs(x) < 1.0) {
+    var e = parseInt(x.toString().split('e-')[1]);
+    if (e) {
+      x *= Math.pow(10, e - 1);
+      x = '0.' + new Array(e).join('0') + x.toString().substring(2);
+    }
+  } else {
+    var e = parseInt(x.toString().split('+')[1]);
+    if (e > 20) {
+      e -= 20;
+      x /= Math.pow(10, e);
+      x += new Array(e + 1).join('0');
+    }
+  }
+  return x;
 }

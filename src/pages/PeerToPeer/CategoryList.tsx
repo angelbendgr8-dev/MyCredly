@@ -1,27 +1,33 @@
 import {ScrollView, StyleSheet} from 'react-native';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Category} from './Category';
 import {AppContext} from '../../state/AppContext';
-
-const categories = [
-  {title: 'BTC'},
-  {title: 'ETH'},
-  {title: 'USDT'},
-  {title: 'CELO'},
-  {title: 'CUSD'},
-];
+import {useGetWalletTypesQuery} from '../../state/services/misc.services';
 
 const CategoryList = ({}) => {
   const {setCategory, category} = useContext(AppContext);
-  //   const {category} = useCategory();
+  const [categories, setCategories] = useState('All');
+  const {data, isLoading} = useGetWalletTypesQuery();
   // console.log(categories);
   //   const {navigate} = useNavigation();
-
+  useEffect(() => {
+    if (data) {
+      setCategories(data.data);
+      console.log('here');
+    }
+  }, [data]);
   return (
     <ScrollView
       showsHorizontalScrollIndicator={false}
       horizontal={true}
       style={styles.container}>
+      <Category
+        onPress={() => {
+          setCategory({label: 'All'});
+        }}
+        active={category.label === 'All' ? true : false}
+        title={'All'}
+      />
       {[...categories].map((cat, index) => (
         <Category
           key={index}
@@ -29,9 +35,9 @@ const CategoryList = ({}) => {
             setCategory(cat);
           }}
           active={
-            !category ? false : cat.title === category.title ? true : false
+            !category ? false : cat.label === category.label ? true : false
           }
-          title={cat.title}
+          title={cat.label}
         />
       ))}
     </ScrollView>

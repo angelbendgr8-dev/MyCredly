@@ -1,15 +1,14 @@
 import {ScrollView, StyleSheet} from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import {createBox} from '@shopify/restyle';
-import TransactionItem from '../../Components/TransactionItem';
-import {AppContext} from '../../state/AppContext';
-import _ from 'lodash';
 import {useTransactions} from '../../state/hooks/transactions.hooks';
+import {AppContext} from '../../state/AppContext';
 import WithdrawalItem from '../../Components/WithdrawalItem';
 import Text from '../../Components/Text';
+import _ from 'lodash';
 const Box = createBox();
 
-const WithdrawalHistory = () => {
+const CWithdrawalHistory = () => {
   const {withdrawals} = useTransactions();
   const {cwallet} = useContext(AppContext);
   const [walletWithdrawal, setWalletWithdrawal] = useState([]);
@@ -20,7 +19,6 @@ const WithdrawalHistory = () => {
       setWalletWithdrawal(temp);
     }
   }, [withdrawals, cwallet]);
-  // console.log('walletWithdrawal', walletWithdrawal);
   return (
     <Box flex={1} backgroundColor={'background'}>
       {walletWithdrawal && !_.isEmpty(walletWithdrawal) ? (
@@ -38,6 +36,6 @@ const WithdrawalHistory = () => {
   );
 };
 
-export default WithdrawalHistory;
+export default CWithdrawalHistory;
 
 const styles = StyleSheet.create({});

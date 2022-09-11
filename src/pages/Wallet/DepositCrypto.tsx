@@ -55,6 +55,7 @@ const DepositCtypto = () => {
             variant={'regular'}
             textAlign="center"
             color={'muted'}
+            marginTop={'my3'}
             fontSize={16}>
             send only {item.name} to this address. This address doesn't support
             non-fungible token

@@ -1,5 +1,5 @@
 import {Image, ScrollView} from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Container from '../../Components/Container';
 import Box from '../../Components/Box';
 import {bitcoin, celo, ethereum} from '../../assets';
@@ -10,7 +10,10 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import Clickable from '../../Components/Clickable';
 import {useNavigation} from '@react-navigation/native';
 import {useWallet} from '../../state/hooks/wallet.hooks';
-import { assetUrl } from '../../helpers/constants';
+import {assetUrl} from '../../helpers/constants';
+import { useGetBalanceQuery } from '../../state/services/wallet.services';
+import { useDispatch } from 'react-redux';
+import { updateWallet } from '../../state/reducers/wallet.reducer';
 
 const data = [
   {label: 'BTC', value: 'BTC', icon: bitcoin, code: '₦'},
@@ -30,6 +33,19 @@ type Props = {
 
 const WalletItem: React.FC<Props> = ({item}) => {
   const {navigate} = useNavigation();
+  // console.log(item.id);
+  const {data, isloading, refetch} = useGetBalanceQuery(item.id);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (data) {
+      // console.log('balance', data);
+      dispatch(updateWallet({wallet: data.data}));
+    }
+    setTimeout(() => {
+      refetch();
+    }, 500000);
+  }, [data, dispatch, refetch]);
   return (
     <Clickable
       flexDirection="row"
@@ -52,7 +68,7 @@ const WalletItem: React.FC<Props> = ({item}) => {
           borderRadius={150}>
           <Image
             source={{uri: `${assetUrl()}${item.wType.icon}`}}
-            style={{height: 20, width: 20,borderRadius:60}}
+            style={{height: 20, width: 20, borderRadius: 60}}
           />
         </Box>
         <Box marginLeft={'mx2'}>
@@ -71,16 +87,19 @@ const WalletItem: React.FC<Props> = ({item}) => {
 
 const Crypto = () => {
   const {cryptos} = useWallet();
+  console.log(cryptos);
   return (
     <Container paddingHorizontal={'mx4'}>
-      {_.isEmpty(cryptos) ? (
-        <Box>No wallet items</Box>
-      ) : (
+      {cryptos && !_.isEmpty(cryptos) ? (
         <ScrollView>
           {cryptos.map(item => (
             <WalletItem key={item.id} item={item} />
           ))}
         </ScrollView>
+      ) : (
+        <Box flex={1} justifyContent={'center'} alignItems="center">
+          <Text variant={'medium'}>No wallet items</Text>
+        </Box>
       )}
     </Container>
   );

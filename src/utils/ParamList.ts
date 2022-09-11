@@ -27,6 +27,10 @@ export type MainStack = {
   EmailOtpVerification: undefined;
   CryptoAlerts: undefined;
   AddCryptoAlert: undefined;
+  WithdrawCrypto: undefined;
+  CreateListing: undefined;
+  PeerTransaction: undefined;
+  TransactionBoard: undefined;
   WalletInfo: {
     item: Item;
   };

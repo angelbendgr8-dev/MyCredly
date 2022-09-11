@@ -6,10 +6,10 @@ import moment from 'moment';
 
 const Box = createBox();
 type Props = {
-  deposit?: {} | null;
+  withdrawal?: {} | null;
   wallet?: {};
 };
-const TransactionItem = ({deposit = {}, wallet}: Props) => {
+const WithdrawalItem = ({withdrawal = {}, wallet}: Props) => {
   // console.log(wallet);
   return (
     <Box
@@ -33,11 +33,11 @@ const TransactionItem = ({deposit = {}, wallet}: Props) => {
           justifyContent={'center'}
           style={{padding: 10}}
           alignItems={'center'}>
-          <Text variant={'medium'}>{wallet?.wType.sign}{' '}</Text>
+          <Text variant={'medium'}>{wallet?.wType.sign} </Text>
         </Box>
         <Box flexDirection={'column'}>
           <Text variant={'medium'} fontSize={12} color={'light'}>
-            {wallet?.name} Deposit
+            {wallet?.name} Withdrawal
           </Text>
           <Text variant={'regular'} fontSize={12} color={'muted'}>
             {moment().format('D, MMM Y')}
@@ -48,13 +48,12 @@ const TransactionItem = ({deposit = {}, wallet}: Props) => {
         </Box>
       </Box>
       <Text variant={'regular'}>
-        {wallet?.wType.sign}{' '}
-        {deposit?.amount}
+        {wallet?.wType.sign} {withdrawal?.amount}
       </Text>
     </Box>
   );
 };
 
-export default TransactionItem;
+export default WithdrawalItem;
 
 const styles = StyleSheet.create({});

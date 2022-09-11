@@ -107,13 +107,13 @@ const HeaderBoard = () => {
 const HeaderCard = () => {
   const {navigate} = useNavigation();
   const [value, setValue] = useState('NGN');
-  const theme = useTheme();
   const {fiats} = useWallet();
+  const theme = useTheme();
   const {background, faint} = theme.colors;
   const [balance, setBalance] = useState(0.0);
-  const [icon, setIcon] = useState('');
   const [code, setCode] = useState('₦');
-  const [selected, setSelected] = useState(fiats[0]);
+  const [icon, setIcon] = useState('');
+  const [selected, setSelected] = useState(fiats ? fiats[0] : []);
   // console.log(`${assetUrl()}${fiats[0].wType.icon}`);
   const {setCwallet} = useContext(AppContext);
   const renderItem = (item: any) => {
@@ -129,10 +129,11 @@ const HeaderCard = () => {
     );
   };
   useEffect(() => {
-    if (fiats) {
+    if (!_.isEmpty(fiats)) {
       setIcon(fiats[0].wType.icon);
       setCode(fiats[0].wType.sign);
       setBalance(fiats[0].balance);
+      setSelected(fiats[0]);
     }
   }, [fiats]);
 
@@ -297,7 +298,7 @@ const Dashboard = () => {
         borderTopLeftRadius={25}
         borderTopRightRadius={25}>
         <ScrollView>
-          <HeaderCard />
+          {_.size(wallets) > 0 && <HeaderCard />}
 
           <Box
             flexWrap={'wrap'}

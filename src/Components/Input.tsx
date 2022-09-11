@@ -29,7 +29,8 @@ type Props = RestyleProps & {
   customStyles: {};
   keyboard: KeyboardTypeOptions;
   hasError: boolean;
-  max?:number;
+  max?: number;
+  multiline: boolean;
 };
 
 const Input = ({
@@ -46,6 +47,7 @@ const Input = ({
   hasError,
   keyboard,
   max,
+  multiline = false,
 }: Props) => {
   const [holder, setHolder] = React.useState(placeholder);
   const [isFocus, setIsFocus] = React.useState(false);
@@ -69,8 +71,9 @@ const Input = ({
       {leftIcon && <View style={{}}>{leftIcon()}</View>}
       <TextInput
         value={value}
+        defaultValue={value}
         placeholder={holder}
-        placeholderTextColor={foreground}
+        placeholderTextColor={muted}
         onChangeText={onChange}
         maxLength={max}
         onFocus={() => {
@@ -88,6 +91,9 @@ const Input = ({
           {
             flex: 2,
             color: !disabled ? muted : foreground,
+            height: multiline
+              ? heightPercentageToDP('10%')
+              : heightPercentageToDP('7%'),
           },
           // props.style,
         ]}
@@ -95,6 +101,8 @@ const Input = ({
         textContentType={type}
         secureTextEntry={secure}
         keyboardType={keyboard}
+        multiline={multiline}
+        textAlignVertical={multiline ? 'top' : 'center'}
         editable={disabled}
         underlineColorAndroid="transparent"
       />

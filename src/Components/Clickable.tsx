@@ -15,6 +15,7 @@ import {
   composeRestyleFunctions,
 } from '@shopify/restyle';
 import {Theme} from '../theme';
+import Box from './Box';
 
 type RestyleProps = SpacingProps<Theme> &
   BorderProps<Theme> &
@@ -36,7 +37,7 @@ const Clickable: React.FC<Props> = ({children, style, onPress, ...rest}) => {
   const props = useRestyle(restyleFunctions, rest);
   return (
     <TouchableOpacity onPress={onPress} style={style}>
-      <View {...props}>{children}</View>
+      <Box {...props}>{children}</Box>
     </TouchableOpacity>
   );
 };

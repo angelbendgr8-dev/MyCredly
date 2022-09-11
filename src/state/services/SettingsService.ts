@@ -61,6 +61,19 @@ export const SettingApi = createApi({
         body: credentials,
       }),
     }),
+    addAccount: builder.mutation({
+      query: credentials => ({
+        url: '/users/add/bank',
+        method: 'POST',
+        body: credentials,
+      }),
+    }),
+    getBanks: builder.query({
+      query: () => ({
+        url: '/users/get/banks',
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -73,4 +86,6 @@ export const {
   useCreatePinMutation,
   useUpdatePinMutation,
   useUpdate2faSecurityMutation,
+  useAddAccountMutation,
+  useGetBanksQuery,
 } = SettingApi;

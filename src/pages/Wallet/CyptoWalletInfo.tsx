@@ -1,5 +1,5 @@
 import {Image, ScrollView} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -14,6 +14,7 @@ import {Item} from './Fiats';
 import _ from 'lodash';
 import {assetUrl, currencyFormat} from '../../helpers/constants';
 import {useGetConversionRateQuery} from '../../state/services/misc.services';
+import {AppContext} from '../../state/AppContext';
 
 type Props = {
   item: Item;
@@ -98,8 +99,10 @@ const CryptoWalletInfo: React.FC<Props> = () => {
   const {params} = useRoute();
   // console.log(params);
   const {item} = params;
+  console.log(item.balance);
+  const {setCwallet} = useContext(AppContext);
   const [skip, setSkip] = useState(true);
-  const {navigate} =useNavigation();
+  const {navigate} = useNavigation();
   const {data, isLoading} = useGetConversionRateQuery(
     {
       symbol: item.name,
@@ -136,22 +139,25 @@ const CryptoWalletInfo: React.FC<Props> = () => {
           justifyContent={'center'}
           borderRadius={150}>
           <Image
-            source={{uri: `${assetUrl()}${item.wType.icon}`}}
-            style={{height: 60, width: 60, borderRadius:60}}
+            source={{uri: `${assetUrl()}${item?.wType.icon}`}}
+            style={{height: 60, width: 60, borderRadius: 60}}
           />
           <Text variant={'regular'} textTransform={'capitalize'} fontSize={18}>
             {item.wType.name}
           </Text>
           <Text variant="regular" fontSize={18}>
-            {item.balance.toFixed(5)} {item.name}
+            {Number(item.balance).toFixed(5)} {item.name}
           </Text>
           <Text variant="regular" fontSize={18}>
-            = {item.balance === 0 ? `$ ${item.balance.toFixed(2)}` : `$ ${0}`}
+            ={' '}
+            {item.balance > 0
+              ? `$ ${Number(item.balance).toFixed(2)}`
+              : `$ ${Number(0).toFixed(2)}`}
           </Text>
           <Box flexDirection={'row'} justifyContent="space-evenly">
             <Button
-              label="Fund"
-              onPress={() => navigate('DepositCrypto',{item})}
+              label="Deposit"
+              onPress={() => navigate('DepositCrypto', {item})}
               backgroundColor={'success1'}
               width={widthPercentageToDP('40%')}
               labelStyle={{color: 'white', fontSize: 16, zIndex: 10}}
@@ -167,7 +173,10 @@ const CryptoWalletInfo: React.FC<Props> = () => {
             />
             <Button
               label="Withdraw"
-              onPress={() => navigate('WithdrawFund')}
+              onPress={() => {
+                setCwallet(item);
+                navigate('WithdrawCrypto');
+              }}
               backgroundColor={'transparent'}
               width={widthPercentageToDP('40%')}
               // opacity={1}

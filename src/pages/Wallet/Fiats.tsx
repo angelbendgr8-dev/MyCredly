@@ -10,7 +10,7 @@ import Text from '../../Components/Text';
 import Clickable from '../../Components/Clickable';
 import {useNavigation} from '@react-navigation/native';
 import {useWallet} from '../../state/hooks/wallet.hooks';
-import { assetUrl } from '../../helpers/constants';
+import {assetUrl} from '../../helpers/constants';
 
 const data = [
   {label: 'NGN', value: 'NGN', icon: ngn, code: '₦'},
@@ -71,16 +71,19 @@ const WalletItem: React.FC<Props> = ({item}) => {
 
 const Fiats = () => {
   const {fiats} = useWallet();
+  console.log(fiats);
   return (
     <Container paddingHorizontal={'mx3'}>
-      {_.isEmpty(fiats) ? (
-        <Box>No wallet items</Box>
-      ) : (
+      {fiats && !_.isEmpty(fiats) ? (
         <ScrollView>
           {fiats.map(item => (
             <WalletItem key={item.id} item={item} />
           ))}
         </ScrollView>
+      ) : (
+        <Box flex={1} justifyContent={'center'} alignItems='center'>
+          <Text variant={'medium'}>No wallet items</Text>
+        </Box>
       )}
     </Container>
   );

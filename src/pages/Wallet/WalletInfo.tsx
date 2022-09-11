@@ -1,5 +1,5 @@
-import {ScrollView} from 'react-native';
-import React, {useContext, useState} from 'react';
+import {FlatList, ScrollView} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -13,6 +13,11 @@ import Container from '../../Components/Container';
 import {Item} from './Fiats';
 import _ from 'lodash';
 import {AppContext} from '../../state/AppContext';
+import {useGetTransactionsQuery} from '../../state/services/wallet.services';
+import {useDispatch} from 'react-redux';
+import {setDeposits} from '../../state/reducers/transactions.reducer';
+import {useTransactions} from '../../state/hooks/transactions.hooks';
+import TransactionItem from '../../Components/TransactionItem';
 
 type Props = {
   item: Item;
@@ -20,6 +25,7 @@ type Props = {
 const HeaderCard: React.FC<Props> = ({item}) => {
   const {navigate} = useNavigation();
   const {setCwallet} = useContext(AppContext);
+  // console.log(item);
   return (
     <Box
       backgroundColor={'success1'}
@@ -65,7 +71,7 @@ const HeaderCard: React.FC<Props> = ({item}) => {
           label="Fund"
           onPress={() => {
             setCwallet(item);
-            navigate('FundWallet')
+            navigate('FundWallet');
           }}
           backgroundColor={'faint'}
           width={widthPercentageToDP('40%')}
@@ -79,7 +85,10 @@ const HeaderCard: React.FC<Props> = ({item}) => {
         />
         <Button
           label="Withdraw"
-          onPress={() => navigate('WithdrawFund')}
+          onPress={() => {
+            setCwallet(item);
+            navigate('WithdrawFund');
+          }}
           backgroundColor={'faint'}
           width={widthPercentageToDP('40%')}
           // opacity={1}
@@ -98,22 +107,32 @@ const HeaderCard: React.FC<Props> = ({item}) => {
 
 const WalletInfo: React.FC<Props> = () => {
   const {params} = useRoute();
-  //   console.log(params);
+  // console.log(params);
   const {item} = params;
-  const [transactions, setTransactions] = useState([]);
+  const {data, isLoading} = useGetTransactionsQuery();
+  // const [transactions, setTransactions] = useState([]);
+  const {deposits} = useTransactions();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (data && !_.isEmpty(data.data)) {
+      // console.log(data);
+      dispatch(setDeposits({deposits: data.data}));
+    }
+  }, [data]);
 
   return (
     <Container>
       <Header leftIcon={true} />
       <Box paddingVertical={'mx3'} paddingHorizontal="mx3">
         <Text variant={'medium'} marginVertical="my3" color="foreground">
-          {item.label} Wallet
+          {item.name} Wallet
         </Text>
         <HeaderCard item={item} />
         <Text variant={'bold'} fontSize={20} color="foreground">
           Transactions
         </Text>
-        {_.isEmpty(transactions) ? (
+        {_.isEmpty(deposits) ? (
           <Box
             height={heightPercentageToDP('45%')}
             alignItems="center"
@@ -122,7 +141,13 @@ const WalletInfo: React.FC<Props> = () => {
             <Text variant={'regular'}>No transactions Recorded</Text>
           </Box>
         ) : (
-          <Text variant={'medium'}>transactions here</Text>
+          <FlatList
+            data={[...deposits].reverse()}
+            renderItem={({item: deposit}) => (
+              <TransactionItem wallet={item} deposit={deposit} />
+            )}
+            keyExtractor={deposit => deposit.id}
+          />
         )}
       </Box>
     </Container>

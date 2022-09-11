@@ -16,9 +16,65 @@ import Select from '../../../Components/Select';
 import {useNavigation} from '@react-navigation/native';
 import _ from 'lodash';
 
+import {useForm, Controller} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import {useAddAccountMutation} from '../../../state/services/SettingsService';
+import {performAsyncCalls} from '../../../helpers/constants';
+
+import {useToast} from 'react-native-toast-notifications';
+import { Loader } from '../../../Components/Loader';
+
+const schema = yup
+  .object({
+    account_name: yup.string().required('Account Name is Required'),
+    account_number: yup.string().required('Account Number is Required'),
+    bank_name: yup.string().required('Bank Name is Required'),
+  })
+  .required();
+
 const data = [{label: 'Bank  Transfer', value: 'Bank Transfer'}];
 
 const AddBanks = () => {
+  const [addAccount, {isLoading}] = useAddAccountMutation();
+  const toast = useToast();
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    getValues,
+  } = useForm({
+    defaultValues: {
+      account_name: '',
+      account_number: '',
+      bank_name: '',
+    },
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit = async credentials => {
+    const response = await performAsyncCalls(credentials, addAccount);
+    console.log(response);
+    if (response.success === false) {
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    } else {
+      // const {data} = response;
+      toast.show('Bank Added Successfully', {
+        type: 'success',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+      // setPaymentDetails(response.data);
+      // navigate('Dashboard');
+    }
+  };
   return (
     <Box
       marginHorizontal={'mx3'}
@@ -26,10 +82,69 @@ const AddBanks = () => {
       paddingHorizontal={'mx3'}
       borderRadius={15}
       backgroundColor={'secondary'}>
+      <Loader visible={isLoading} />
       <ScrollView>
         <Box>
-          <Text variant={'regular'}>Select Bank</Text>
-          <Select data={data} />
+          <Text
+            variant={'regular'}
+            color={'foreground'}
+            //   style={{color: foreground}}
+            textAlign={'left'}>
+            Bank Name
+          </Text>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({field: {onChange, value}}) => (
+              <Input
+                // leftIcon={() => <Text variant={'regular'}>{'₦'}</Text>}
+                value={value}
+                type={'none'}
+                customStyles={{
+                  margin: 0,
+                  borderRadius: 30,
+                  height: heightPercentageToDP('6%'),
+                  marginVertical: heightPercentageToDP('2%'),
+                }}
+                placeholder={'Bank Name'}
+                onChange={input => onChange(input)}
+              />
+            )}
+            name="bank_name"
+          />
+        </Box>
+        <Box>
+          <Text
+            variant={'regular'}
+            color={'foreground'}
+            //   style={{color: foreground}}
+            textAlign={'left'}>
+            Account Name
+          </Text>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({field: {onChange, value}}) => (
+              <Input
+                // leftIcon={() => <Text variant={'regular'}>{'₦'}</Text>}
+                value={value}
+                type={'none'}
+                customStyles={{
+                  margin: 0,
+                  borderRadius: 30,
+                  height: heightPercentageToDP('6%'),
+                  marginVertical: heightPercentageToDP('2%'),
+                }}
+                placeholder={' Enter Account Name'}
+                onChange={input => onChange(input)}
+              />
+            )}
+            name="account_name"
+          />
         </Box>
         <Box>
           <Text
@@ -39,23 +154,32 @@ const AddBanks = () => {
             textAlign={'left'}>
             Account Number
           </Text>
-          <Input
-            leftIcon={() => <Text variant={'regular'}>{'₦'}</Text>}
-            value={''}
-            type={'none'}
-            customStyles={{
-              margin: 0,
-              borderRadius: 30,
-              height: heightPercentageToDP('6%'),
-              marginVertical: heightPercentageToDP('2%'),
+          <Controller
+            control={control}
+            rules={{
+              required: true,
             }}
-            placeholder={' Enter Amount'}
-            onChange={input => console.log(input)}
+            render={({field: {onChange, value}}) => (
+              <Input
+                // leftIcon={() => <Text variant={'regular'}>{'₦'}</Text>}
+                value={value}
+                type={'none'}
+                customStyles={{
+                  margin: 0,
+                  borderRadius: 30,
+                  height: heightPercentageToDP('6%'),
+                  marginVertical: heightPercentageToDP('2%'),
+                }}
+                placeholder={' Enter Account Number'}
+                onChange={input => onChange(input)}
+              />
+            )}
+            name="account_number"
           />
         </Box>
         <Button
           label="Submit"
-          onPress={() => {}}
+          onPress={handleSubmit(onSubmit)}
           backgroundColor={'success1'}
           width={'100%'}
           labelStyle={{color: 'white'}}
@@ -76,6 +200,7 @@ const BanksAndCard = () => {
   return (
     <Container>
       <Header leftIcon={true} />
+     
       <Box
         flexDirection={'row'}
         alignItems={'center'}

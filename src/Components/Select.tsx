@@ -9,10 +9,15 @@ const Box = createBox();
 type Props = {
   data: Array<{}>;
   disabled?: boolean;
+  onSelect?: (value: number) => void;
 };
-const Select: React.FC<Props> = ({data, disabled = false}) => {
+const Select: React.FC<Props> = ({
+  data,
+  disabled = false,
+  onSelect = () => {},
+}) => {
   const [value, setValue] = useState('Bank Transfer');
-
+  // console.log(data);
   const theme = useTheme();
   const {background, muted} = theme.colors;
   const renderItem = (item: any) => {
@@ -45,6 +50,7 @@ const Select: React.FC<Props> = ({data, disabled = false}) => {
         value={value}
         onChange={item => {
           setValue(item.value);
+          onSelect(item.value);
         }}
         renderItem={renderItem}
       />
