@@ -35,11 +35,13 @@ import WithdrawCrypto from '../pages/Withdrawal/WithdrawCrypto';
 import CreateListing from '../pages/PeerToPeer/CreateListing';
 import PeerTransaction from '../pages/PeerToPeer/PeerTransaction';
 import TransactionBoard from '../pages/PeerToPeer/TransactionBoard';
+import PeerHistory from '../pages/PeerToPeer/BuyHistory';
+import TradingHistoryDetails from '../pages/PeerToPeer/TradingHistoryDetails';
 const Stack = createNativeStackNavigator<MainStack>();
 
 function StackNavigation() {
   const {token} = useAuth();
-  
+
   React.useEffect(() => {
     setTimeout(() => SplashScreen.hide(), 3000);
   }, []);
@@ -91,6 +93,11 @@ function StackNavigation() {
           <Stack.Screen name="AddCryptoAlert" component={AddCryptoAlert} />
           <Stack.Screen name="PeerTransaction" component={PeerTransaction} />
           <Stack.Screen name="TransactionBoard" component={TransactionBoard} />
+          <Stack.Screen name="PeerHistory" component={PeerHistory} />
+          <Stack.Screen
+            name="TradingHistoryDetails"
+            component={TradingHistoryDetails}
+          />
 
           <Stack.Screen
             name="PhoneOtpVerification"

@@ -10,11 +10,13 @@ type Props = {
   data: Array<{}>;
   disabled?: boolean;
   onSelect?: (value: number) => void;
+  placeholder: string;
 };
 const Select: React.FC<Props> = ({
   data,
   disabled = false,
   onSelect = () => {},
+  placeholder,
 }) => {
   const [value, setValue] = useState('Bank Transfer');
   // console.log(data);
@@ -32,7 +34,7 @@ const Select: React.FC<Props> = ({
       {/* {renderLabel()} */}
       <Dropdown
         style={[styles.dropdown, {backgroundColor: background}]}
-        placeholderStyle={styles.placeholderStyle}
+        placeholderStyle={[styles.placeholderStyle, {color: muted}]}
         selectedTextStyle={[
           styles.selectedTextStyle,
           {color: disabled ? muted : 'white'},
@@ -46,6 +48,7 @@ const Select: React.FC<Props> = ({
         disable={disabled}
         labelField="label"
         valueField="value"
+        placeholder={placeholder}
         activeColor={background}
         value={value}
         onChange={item => {

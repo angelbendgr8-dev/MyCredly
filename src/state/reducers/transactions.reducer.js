@@ -13,6 +13,7 @@ const slice = createSlice({
     buylistings: [],
     selllistings: [],
     tradings: [],
+    tradeHistory: [],
   },
   reducers: {
     setDeposits: (state, {payload: {deposits}}) => {
@@ -43,6 +44,12 @@ const slice = createSlice({
         state.tradings = [trading];
       }
     },
+    updateTrading: (state, {payload: {trading}}) => {
+      let found = state.tradings.filter(temp => temp.id === trading.id);
+      if (found) {
+        found = trading;
+      }
+    },
     addListing: (state, {payload: {listing}}) => {
       if (_.size(state.mylisting) > 0) {
         state.mylisting = [...state.mylisting, listing];
@@ -61,6 +68,8 @@ export const {
   addListing,
   setTrading,
   addTrading,
+  updateTrading,
+  setTradingHistory,
 } = slice.actions;
 
 export default slice.reducer;

@@ -417,7 +417,7 @@ const CreateListing = () => {
         price={`${price} ${selected?.label}`}
         amount={`${amount} ${selected?.label}`}
         limit={`${minLimit} ${selected?.label} min `}
-        total={`${(price * amount).toFixed(2)} NGN`}
+        total={`${currencyFormat(price * amount)} NGN`}
         onCancelled={() => setshowPreview(false)}
         onConfirmed={handleSubmit(onSubmit, onError)}
       />

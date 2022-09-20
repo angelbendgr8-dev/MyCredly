@@ -14,17 +14,22 @@ import CategoryList from './CategoryList';
 import Box from '../../Components/Box';
 import Text from '../../Components/Text';
 import Button from '../../Components/Button';
-import {heightPercentageToDP, widthPercentageToDP} from 'react-native-responsive-screen';
+import {
+  heightPercentageToDP,
+  widthPercentageToDP,
+} from 'react-native-responsive-screen';
 import {useTheme} from '@shopify/restyle';
+import {useNavigation} from '@react-navigation/native';
 const filter = [
   {label: 'All listing', value: 'All'},
   {label: 'Other listing', value: 'Other'},
   {label: 'My listing', value: 'self'},
 ];
 
-export default function ListingFilter() {
+export default function ListingFilter({type}: {type: string}) {
   const theme = useTheme();
   const {success1, secondary, foreground} = theme.colors;
+  const {navigate} = useNavigation();
 
   const optionsStyles = {
     optionsContainer: {
@@ -115,7 +120,7 @@ export default function ListingFilter() {
             <MenuOptions customStyles={optionsStyles}>
               <MenuOption
                 customStyles={optionStyles}
-                onSelect={() => {}}
+                onSelect={() => navigate('PeerHistory', {type})}
                 text="Trade History"
               />
               <MenuOption

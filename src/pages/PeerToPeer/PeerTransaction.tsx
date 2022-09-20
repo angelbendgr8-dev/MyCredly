@@ -321,7 +321,9 @@ const PeerTransaction = () => {
     credentials.from = item.user.username;
     credentials.price = price;
     credentials.listing_id = item.id;
+    credentials.trader_id = item.user_id;
     credentials.type = item.asset;
+    console.log(credentials);
     setFormData(credentials);
     setShowSummary(true);
   };

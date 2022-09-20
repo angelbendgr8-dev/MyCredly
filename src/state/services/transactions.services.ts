@@ -33,9 +33,49 @@ export const TransactionApi = createApi({
         body: credentials,
       }),
     }),
+    cancelTrading: builder.mutation({
+      query: credentials => ({
+        url: 'users/cancel/trading',
+        method: 'post',
+        body: credentials,
+      }),
+    }),
+    confirmTradingPayment: builder.mutation({
+      query: credentials => ({
+        url: 'users/confirm/trading/payment',
+        method: 'post',
+        body: credentials,
+      }),
+    }),
+    appealTrading: builder.mutation({
+      query: credentials => ({
+        url: 'users/apeal/trading',
+        method: 'post',
+        body: credentials,
+      }),
+    }),
+    completeTrading: builder.mutation({
+      query: credentials => ({
+        url: 'users/complete/trading/',
+        method: 'post',
+        body: credentials,
+      }),
+    }),
+    disputeTrading: builder.mutation({
+      query: credentials => ({
+        url: 'users/dispute/trading',
+        method: 'post',
+        body: credentials,
+      }),
+    }),
     getListings: builder.query({
       query: () => ({
         url: 'users/get/available/listing',
+      }),
+    }),
+    getTradingHistory: builder.query({
+      query: () => ({
+        url: 'users/get/trading/history',
       }),
     }),
   }),
@@ -47,4 +87,10 @@ export const {
   useCreateListingMutation,
   useGetListingsQuery,
   useCreateTradingMutation,
+  useConfirmTradingPaymentMutation,
+  useCancelTradingMutation,
+  useGetTradingHistoryQuery,
+  useAppealTradingMutation,
+  useCompleteTradingMutation,
+  useDisputeTradingMutation,
 } = TransactionApi;

@@ -31,6 +31,10 @@ export type MainStack = {
   CreateListing: undefined;
   PeerTransaction: undefined;
   TransactionBoard: undefined;
+  PeerHistory: undefined;
+  TradingHistoryDetails: {
+    item: any;
+  };
   WalletInfo: {
     item: Item;
   };

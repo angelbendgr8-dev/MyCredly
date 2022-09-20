@@ -5,7 +5,8 @@ import {ReqResponse} from '../interface/error.interface';
 
 export const getUrl = () => {
   if (__DEV__) {
-    return 'https://b597-102-89-32-25.eu.ngrok.io/api';
+    // return 'https://mycredly.herokuapp.com/api/';
+    return 'https://0714-102-89-45-151.eu.ngrok.io/api';
   } else {
     return 'https://mycredly.herokuapp.com/api/';
   }
@@ -13,13 +14,13 @@ export const getUrl = () => {
 
 export const assetUrl = () => {
   if (__DEV__) {
-    return 'https://b597-102-89-32-25.eu.ngrok.io/storage/';
+    return 'https://0714-102-89-45-151.eu.ngrok.io/storage/';
   } else {
     return 'https://mycredly.herokuapp.com/storage/';
   }
 };
 
-export function currencyFormat(num, code, dec) {
+export function currencyFormat(num, code = '₦', dec = 2) {
   return (
     `${code} ` +
     Number(num)

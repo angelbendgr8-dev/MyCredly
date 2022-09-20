@@ -14,10 +14,16 @@ import {
   heightPercentageToDP,
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import {currencyFormat} from '../../helpers/constants';
+import {currencyFormat, performAsyncCalls} from '../../helpers/constants';
 import {useCountdown, useTimeout} from 'usehooks-ts';
 import Button from '../../Components/Button';
-
+import {
+  useCancelTradingMutation,
+  useConfirmTradingPaymentMutation,
+} from '../../state/services/transactions.services';
+import {useToast} from 'react-native-toast-notifications';
+import {updateTrading} from '../../state/reducers/transactions.reducer';
+import {useDispatch} from 'react-redux';
 const TransactionBoard = () => {
   const {params} = useRoute();
   const {item, trading} = params;
@@ -27,6 +33,15 @@ const TransactionBoard = () => {
   const [accNum, setAccNum] = useClipboard();
   const theme = useTheme();
   const {faint, muted, pink} = theme.colors;
+
+  const [cancelled, setCancelled] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [cancelTrading, {isLoading}] = useCancelTradingMutation();
+  const [confirmTradingPayment, {isLoading: paymentLoading}] =
+    useConfirmTradingPaymentMutation();
+  const toast = useToast();
+  const dispatch = useDispatch();
+
   const timer = item.time * 60;
 
   const [intervalValue, setIntervalValue] = useState(1000);
@@ -36,12 +51,31 @@ const TransactionBoard = () => {
 
     intervalMs: intervalValue,
   });
-  const cancelTransaction = () => {
-    console.log('cancel');
+
+  const cancelTransaction = async () => {
+    console.log('here', 1);
+    const response = await performAsyncCalls({id: trading.id}, cancelTrading);
+    console.log(response);
+    if (response.success === false) {
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    } else {
+      console.log(response);
+      toast.show(response.message, {
+        type: 'success',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+      setCancelled(true);
+      dispatch(updateTrading({trading: response.data}));
+    }
   };
-  const confirmTransaction = () => {
-    console.log('confirm');
-  };
+
   useTimeout(cancelTransaction, timer * 1000);
   const formatTime = time => {
     const minutes = Math.floor(time / 60);
@@ -49,6 +83,31 @@ const TransactionBoard = () => {
     return `${minutes ? `${minutes}:${minutes > 1 ? '' : ''}` : ''}${
       seconds ? `${seconds}${seconds > 1 ? '' : ''}` : ''
     }`;
+  };
+  const confirmTransaction = async () => {
+    const response = await performAsyncCalls(
+      {id: trading.id},
+      confirmTradingPayment,
+    );
+    console.log(response);
+    if (response.success === false) {
+      toast.show(response.message, {
+        type: 'danger',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+    } else {
+      console.log(response);
+      toast.show(response.message, {
+        type: 'success',
+        placement: 'top',
+        duration: 4000,
+        animationType: 'zoom-in',
+      });
+      setConfirmed(true);
+      dispatch(updateTrading({trading: response.data}));
+    }
   };
   useEffect(() => {
     startCountdown();
@@ -272,7 +331,7 @@ const TransactionBoard = () => {
               style={{backgroundColor: 'rgba(247,59,113,0.2)'}}
             />
             <Button
-              label="Sure"
+              label="Confirm"
               onPress={confirmTransaction}
               backgroundColor={'success1'}
               width={widthPercentageToDP('45%')}

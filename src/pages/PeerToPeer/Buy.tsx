@@ -68,7 +68,7 @@ const Buy = () => {
           renderItem={({item}) => <ListingItem item={item} />}
           data={listing}
           keyExtractor={item => item.id}
-          ListHeaderComponent={() => <ListingFilter />}
+          ListHeaderComponent={() => <ListingFilter type={'buy'} />}
         />
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
